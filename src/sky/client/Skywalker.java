@@ -89,8 +89,8 @@ public class Skywalker implements EntryPoint {
 		Toolbar bottomBar = buildBottomToggleBar(mainWindowPannel, mapPanel,
 				directionPanel, locationPanel, favoritePanel);
 		mainWindowPannel.setBottomToolbar(bottomBar);
-		
-		//load map as default starting point
+
+		// load map as default starting point
 		clearAndLoad(mainWindowPannel, mapPanel);
 	}
 
@@ -112,80 +112,85 @@ public class Skywalker implements EntryPoint {
 
 		Toolbar bottomBar = new Toolbar();
 
-		ToolbarButton directionsToggle = new ToolbarButton("Directions",
-				new ButtonListenerAdapter() {
-					public void onClick(Button button, EventObject e) {
-						// button actions
-						if (button.isPressed()) {
-							// show direction panel
-							clearAndLoad(mainWindowPannel, directionPanel);
-						} else {
-							// hide direction panel
-							clearAndLoad(mainWindowPannel, mapPanel);
-						}
-					}
-				});
-		directionsToggle.setEnableToggle(true);
-		directionsToggle.setPressed(false);
-		// 6 pixels for padding
-		directionsToggle.setMinWidth((WIDTH / 3) - 6);
-		bottomBar.addButton(directionsToggle);
+		final ToolbarButton directionsToggle = buildToggle(bottomBar, "Directions");
+		final ToolbarButton locationToggle = buildToggle(bottomBar, "Get Location");
+		final ToolbarButton favoriteToggle = buildToggle(bottomBar, "Favorites");
 
-		ToolbarButton locationToggle = new ToolbarButton("Get Location",
-				new ButtonListenerAdapter() {
-					public void onClick(Button button, EventObject e) {
-						// button actions
-						if (button.isPressed()) {
-							// show location panel
-							clearAndLoad(mainWindowPannel, locationPanel);
-						} else {
-							// hide location panel
-							clearAndLoad(mainWindowPannel, mapPanel);
-						}
-					}
-				});
-		locationToggle.setEnableToggle(true);
-		locationToggle.setPressed(false);
-		// 6 pixels for padding
-		locationToggle.setMinWidth((WIDTH / 3) - 6);
-		bottomBar.addButton(locationToggle);
+		directionsToggle.addListener(new ButtonListenerAdapter() {
+			public void onClick(Button button, EventObject e) {
+				// button actions
+				if (button.isPressed()) {
+					// unpress other buttons
+					locationToggle.setPressed(false);
+					favoriteToggle.setPressed(false);
+					// show direction panel
+					clearAndLoad(mainWindowPannel, directionPanel);
+				} else {
+					// hide direction panel
+					clearAndLoad(mainWindowPannel, mapPanel);
+				}
+			}
+		});
 
-		ToolbarButton favoriteToggle = new ToolbarButton("Favorites",
-				new ButtonListenerAdapter() {
-					public void onClick(Button button, EventObject e) {
-						// button actions
-						if (button.isPressed()) {
-							// show favorite panel
-							clearAndLoad(mainWindowPannel, favoritePanel);
-						} else {
-							// hide favorite panel
-							clearAndLoad(mainWindowPannel, mapPanel);
-						}
-					}
+		locationToggle.addListener(new ButtonListenerAdapter() {
+			public void onClick(Button button, EventObject e) {
+				// button actions
+				if (button.isPressed()) {
+					// unpress other buttons
+					directionsToggle.setPressed(false);
+					favoriteToggle.setPressed(false);
+					// show location panel
+					clearAndLoad(mainWindowPannel, locationPanel);
+				} else {
+					// hide location panel
+					clearAndLoad(mainWindowPannel, mapPanel);
+				}
+			}
+		});
 
-				});
-		favoriteToggle.setEnableToggle(true);
-		favoriteToggle.setPressed(false);
-		// 6 pixels for padding
-		favoriteToggle.setMinWidth((WIDTH / 3) - 6);
-		bottomBar.addButton(favoriteToggle);
+		favoriteToggle.addListener(new ButtonListenerAdapter() {
+			public void onClick(Button button, EventObject e) {
+				// button actions
+				if (button.isPressed()) {
+					// unpress other buttons
+					directionsToggle.setPressed(false);
+					locationToggle.setPressed(false);
+					// show favorite panel
+					clearAndLoad(mainWindowPannel, favoritePanel);
+				} else {
+					// hide favorite panel
+					clearAndLoad(mainWindowPannel, mapPanel);
+				}
+			}
+
+		});
 
 		return bottomBar;
 	}
 
+	private ToolbarButton buildToggle(Toolbar bottomBar, String title) {
+		ToolbarButton toggle = new ToolbarButton(title);
+		toggle.setEnableToggle(true);
+		toggle.setPressed(false);
+		// 6 pixels for padding
+		toggle.setMinWidth((WIDTH / 3) - 6);
+		bottomBar.addButton(toggle);
+		return toggle;
+	}
+
 	private Panel buildFavoritePanel() {
 		// TODO: implement me!
-//		TabPanel favoriteTabs = new TabPanel();
-//		favoriteTabs.setTabPosition(Position.TOP);
-//		favoriteTabs.setResizeTabs(false);
-//		favoriteTabs.setActiveTab(0);
-//		
-//		favoriteTabs.add(buildTestPanel("Location", "location tab content"));
-//		
-//		Panel favoritePanel = new Panel();
-//		favoritePanel.setLayout(new FitLayout());
-//		favoritePanel.add(favoriteTabs);
-		
+		// TabPanel favoriteTabs = new TabPanel();
+		// favoriteTabs.setTabPosition(Position.TOP);
+		// favoriteTabs.setResizeTabs(false);
+		// favoriteTabs.setActiveTab(0);
+		//		
+		// favoriteTabs.add(buildTestPanel("Location", "location tab content"));
+		//		
+		// Panel favoritePanel = new Panel();
+		// favoritePanel.setLayout(new FitLayout());
+		// favoritePanel.add(favoriteTabs);
+
 		return buildTestPanel("Favarite panel go here");
 	}
 
