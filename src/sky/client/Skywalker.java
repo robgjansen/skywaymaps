@@ -6,7 +6,6 @@ import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.ui.Image;
 import com.google.gwt.user.client.ui.RootPanel;
 import com.gwtext.client.core.EventObject;
-import com.gwtext.client.core.Position;
 import com.gwtext.client.widgets.Button;
 import com.gwtext.client.widgets.Panel;
 import com.gwtext.client.widgets.TabPanel;
@@ -27,6 +26,7 @@ public class Skywalker implements EntryPoint {
 
 	private final int WIDTH = 320;
 	private final int HEIGHT = 480;
+	private final String FAV_LINK_TEXTSTYLE = "font-family: Verdana;color: blue;font-size: 20px;text-align: center;text-decoration: underline;";
 
 	/**
 	 * This is the entry point method.
@@ -55,9 +55,9 @@ public class Skywalker implements EntryPoint {
 
 		// outermost panel that holds the launch button
 		final Panel shellPanel = new Panel();
-		shellPanel.setBorder(true);
+		shellPanel.setBorder(false);
 		shellPanel.setTitle("Skywalker Demo");
-		shellPanel.setWidth(120);
+		shellPanel.setWidth(105);
 
 		final Button launchButton = new Button("Launch Demo!",
 				new ButtonListenerAdapter() {
@@ -72,6 +72,7 @@ public class Skywalker implements EntryPoint {
 		// We can add style names to widgets -- styled with css
 		launchButton.addStyleName("launchButton");
 		launchButton.setStyle("align: center;");
+		launchButton.setMinWidth(105);
 
 		shellPanel.add(launchButton);
 
@@ -202,105 +203,110 @@ public class Skywalker implements EntryPoint {
 		tabs.add(buildLocationTab());
 
 		favoritePanel.add(tabs);
-		
+
 		return favoritePanel;
 	}
-	
+
 	private Panel buildLocationTab() {
 		Panel tab = new Panel("Locations");
 		tab.setLayout(new ColumnLayout());
 		tab.setBorder(false);
-		
-		//set up label column
+
+		// set up label column
 		Panel labels = new Panel();
 		// 30 pixels between components
-		labels.setLayout(new VerticalLayout(30));
+		labels.setLayout(new VerticalLayout(28));
 		labels.setBorder(false);
-		
-		//add labels to label column
+
+		// add labels to label column
 		Label loc1 = new Label("(1)  Macy's");
 		labels.add(loc1);
+		loc1.setStyle(FAV_LINK_TEXTSTYLE);
 		Label loc2 = new Label("(2)  Target Plaza");
 		labels.add(loc2);
+		loc2.setStyle(FAV_LINK_TEXTSTYLE);
 		Label loc3 = new Label("(3)  Target Store");
+		loc3.setStyle(FAV_LINK_TEXTSTYLE);
 		labels.add(loc3);
-		
-		//set up image column
+
+		// set up image column
 		Panel images = new Panel();
 		// 30 pixels between components
 		images.setLayout(new VerticalLayout(30));
 		images.setBorder(false);
-		
+
 		ClickHandler ch = new ClickHandler() {
-			
+
 			public void onClick(ClickEvent event) {
 				// TODO Auto-generated method stub
 				System.out.println("Image clicked");
 			}
 		};
-		
-		//add images to image column
-		Image deleteImage = new Image("skywalker/images/up.jpg");
+
+		// add images to image column
+		Image deleteImage = new Image("images/delete.png");
 		deleteImage.addClickHandler(ch);
 		images.add(deleteImage);
-		
-		Image deleteImage2 = new Image("skywalker/images/up.jpg");
+
+		Image deleteImage2 = new Image("images/delete.png");
 		deleteImage2.addClickHandler(ch);
 		images.add(deleteImage2);
-		
-		Image deleteImage3 = new Image("skywalker/images/up.jpg");
+
+		Image deleteImage3 = new Image("images/delete.png");
 		deleteImage3.addClickHandler(ch);
 		images.add(deleteImage3);
-		
-		tab.add(labels, new ColumnLayoutData(.75));
-		tab.add(images, new ColumnLayoutData(.25));
-		
+
+		tab.add(labels, new ColumnLayoutData(.85));
+		tab.add(images, new ColumnLayoutData(.15));
+
 		return tab;
 	}
-	
+
 	private Panel buildWalkTab() {
 		Panel tab = new Panel("Walks");
 		tab.setLayout(new ColumnLayout());
 		tab.setBorder(false);
-		
-		//set up label column
+
+		// set up label column
 		Panel labels = new Panel();
 		// 30 pixels between components
 		labels.setLayout(new VerticalLayout(30));
 		labels.setBorder(false);
-		
-		//add labels to label column
+
+		// add labels to label column
 		Label loc1 = new Label("(1)  Macy's to Target Plaza");
+		loc1.setStyle(FAV_LINK_TEXTSTYLE);
 		labels.add(loc1);
 		Label loc2 = new Label("(2)  Target Plaza to Target Store");
+		loc2.setStyle(FAV_LINK_TEXTSTYLE);
 		labels.add(loc2);
-		
-		//set up image column
+
+		// set up image column
 		Panel images = new Panel();
 		// 30 pixels between components
-		images.setLayout(new VerticalLayout(30));
+		images.setLayout(new VerticalLayout(57));
 		images.setBorder(false);
-		
+
 		ClickHandler ch = new ClickHandler() {
-			
+
 			public void onClick(ClickEvent event) {
 				// TODO Auto-generated method stub
 				System.out.println("Image clicked");
 			}
 		};
-		
-		//add images to image column
-		Image deleteImage = new Image("skywalker/images/up.jpg");
+
+		// add images to image column
+		Image deleteImage = new Image("images/delete.png");
 		deleteImage.addClickHandler(ch);
 		images.add(deleteImage);
-		
-		Image deleteImage2 = new Image("skywalker/images/up.jpg");
+
+		Image deleteImage2 = new Image("images/delete.png");
 		deleteImage2.addClickHandler(ch);
 		images.add(deleteImage2);
-		
-		tab.add(labels, new ColumnLayoutData(.75));
-		tab.add(images, new ColumnLayoutData(.25));
-		
+
+		tab.add(labels, new ColumnLayoutData(.85));
+		tab.add(images, new ColumnLayoutData(.15));
+
 		return tab;
 	}
 
