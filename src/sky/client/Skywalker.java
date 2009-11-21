@@ -131,7 +131,7 @@ public class Skywalker implements EntryPoint {
 					// unpress other buttons
 					locationToggle.setPressed(false);
 					favoriteToggle.setPressed(false);
-					// show direction panel
+					// rebuild and show direction panel
 					clearAndLoad(mainWindowPannel, directionPanel);
 				} else {
 					// hide direction panel
@@ -332,7 +332,7 @@ public class Skywalker implements EntryPoint {
 	}
 
 	private void clearAndLoad(Panel parentToClear, Panel childToAdd) {
-		parentToClear.clear();
+		parentToClear.removeAll();
 		childToAdd.show();
 		parentToClear.add(childToAdd);
 		// updates the gui
