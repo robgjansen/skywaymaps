@@ -192,7 +192,7 @@ public class Skywalker implements EntryPoint {
 	private Panel buildFavoritePanel() {
 		// wrapper for the tabs component
 		Panel favoritePanel = new Panel("Favorites");
-		favoritePanel.setLayout(new FitLayout());
+		favoritePanel.setLayout(new VerticalLayout(1));
 
 		// the tabs
 		TabPanel tabs = new TabPanel();
@@ -203,6 +203,7 @@ public class Skywalker implements EntryPoint {
 
 		tabs.add(buildWalkTab());
 		tabs.add(buildLocationTab());
+		tabs.doLayout();
 
 		favoritePanel.add(tabs);
 
@@ -211,7 +212,7 @@ public class Skywalker implements EntryPoint {
 
 	private Panel buildLocationTab() {
 		Panel tab = new Panel("Locations");
-		tab.setLayout(new VerticalLayout(15));
+		tab.setLayout(new VerticalLayout(10));
 		tab.setBorder(false);
 
 		tab.add(buildFavoriteEntry("(1)  Macy's"));
@@ -235,7 +236,8 @@ public class Skywalker implements EntryPoint {
 	private Panel buildFavoriteEntry(final String entryTitle) {
 		// an entry in the favorite list has a button with the entry title
 		final ToggleButton button = new ToggleButton(entryTitle);
-		button.setPixelSize(225, 20);
+		// delete image is 25 pixels high too!
+		button.setPixelSize(225, 25);
 		button.addClickHandler(new ClickHandler() {
 
 			public void onClick(ClickEvent event) {
@@ -246,19 +248,23 @@ public class Skywalker implements EntryPoint {
 		});
 
 		// the entry also has an clickable image to delete the entry
-		Image deleteImage = new Image("images/delete.png");
+		final ToggleButton deleteImage = new ToggleButton(new Image(
+				"images/delete.png"));
+		deleteImage.setPixelSize(25, 25);
 		deleteImage.addClickHandler(new ClickHandler() {
 
 			public void onClick(ClickEvent event) {
 				// TODO Auto-generated method stub
 				System.out.println("Delete image clicked");
+				deleteImage.setDown(false);
 			}
 		});
 
 		// create the new panel and add componenets
 		Panel entry = new Panel();
 		entry.setBorder(false);
-		entry.setLayout(new HorizontalLayout(15));
+		entry.setLayout(new HorizontalLayout(10));
+		entry.setMargins(5);
 
 		entry.add(button);
 		entry.add(deleteImage);
