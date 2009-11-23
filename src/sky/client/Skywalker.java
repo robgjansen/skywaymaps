@@ -4,7 +4,9 @@ import com.google.gwt.core.client.EntryPoint;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.ui.Image;
+import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.RootPanel;
+import com.google.gwt.user.client.ui.ToggleButton;
 import com.gwtext.client.core.EventObject;
 import com.gwtext.client.widgets.Button;
 import com.gwtext.client.widgets.Panel;
@@ -13,10 +15,10 @@ import com.gwtext.client.widgets.Toolbar;
 import com.gwtext.client.widgets.ToolbarButton;
 import com.gwtext.client.widgets.Window;
 import com.gwtext.client.widgets.event.ButtonListenerAdapter;
-import com.gwtext.client.widgets.form.Label;
 import com.gwtext.client.widgets.layout.ColumnLayout;
 import com.gwtext.client.widgets.layout.ColumnLayoutData;
 import com.gwtext.client.widgets.layout.FitLayout;
+import com.gwtext.client.widgets.layout.HorizontalLayout;
 import com.gwtext.client.widgets.layout.VerticalLayout;
 
 /**
@@ -209,105 +211,59 @@ public class Skywalker implements EntryPoint {
 
 	private Panel buildLocationTab() {
 		Panel tab = new Panel("Locations");
-		tab.setLayout(new ColumnLayout());
+		tab.setLayout(new VerticalLayout(15));
 		tab.setBorder(false);
 
-		// set up label column
-		Panel labels = new Panel();
-		// 30 pixels between components
-		labels.setLayout(new VerticalLayout(28));
-		labels.setBorder(false);
-
-		// add labels to label column
-		Label loc1 = new Label("(1)  Macy's");
-		labels.add(loc1);
-		loc1.setStyle(FAV_LINK_TEXTSTYLE);
-		Label loc2 = new Label("(2)  Target Plaza");
-		labels.add(loc2);
-		loc2.setStyle(FAV_LINK_TEXTSTYLE);
-		Label loc3 = new Label("(3)  Target Store");
-		loc3.setStyle(FAV_LINK_TEXTSTYLE);
-		labels.add(loc3);
-
-		// set up image column
-		Panel images = new Panel();
-		// 30 pixels between components
-		images.setLayout(new VerticalLayout(30));
-		images.setBorder(false);
-
-		ClickHandler ch = new ClickHandler() {
-
-			public void onClick(ClickEvent event) {
-				// TODO Auto-generated method stub
-				System.out.println("Image clicked");
-			}
-		};
-
-		// add images to image column
-		Image deleteImage = new Image("images/delete.png");
-		deleteImage.addClickHandler(ch);
-		images.add(deleteImage);
-
-		Image deleteImage2 = new Image("images/delete.png");
-		deleteImage2.addClickHandler(ch);
-		images.add(deleteImage2);
-
-		Image deleteImage3 = new Image("images/delete.png");
-		deleteImage3.addClickHandler(ch);
-		images.add(deleteImage3);
-
-		tab.add(labels, new ColumnLayoutData(.85));
-		tab.add(images, new ColumnLayoutData(.15));
+		tab.add(buildFavoriteEntry("(1)  Macy's"));
+		tab.add(buildFavoriteEntry("(2)  Target Plaza"));
+		tab.add(buildFavoriteEntry("(3)  Target Store"));
 
 		return tab;
 	}
 
 	private Panel buildWalkTab() {
 		Panel tab = new Panel("Walks");
-		tab.setLayout(new ColumnLayout());
+		tab.setLayout(new VerticalLayout(15));
 		tab.setBorder(false);
 
-		// set up label column
-		Panel labels = new Panel();
-		// 30 pixels between components
-		labels.setLayout(new VerticalLayout(30));
-		labels.setBorder(false);
+		tab.add(buildFavoriteEntry("(1)  Macy's to Target Plaza"));
+		tab.add(buildFavoriteEntry("(2)  Target Plaza to Target Store"));
 
-		// add labels to label column
-		Label loc1 = new Label("(1)  Macy's to Target Plaza");
-		loc1.setStyle(FAV_LINK_TEXTSTYLE);
-		labels.add(loc1);
-		Label loc2 = new Label("(2)  Target Plaza to Target Store");
-		loc2.setStyle(FAV_LINK_TEXTSTYLE);
-		labels.add(loc2);
+		return tab;
+	}
 
-		// set up image column
-		Panel images = new Panel();
-		// 30 pixels between components
-		images.setLayout(new VerticalLayout(57));
-		images.setBorder(false);
-
-		ClickHandler ch = new ClickHandler() {
+	private Panel buildFavoriteEntry(final String entryTitle) {
+		// an entry in the favorite list has a button with the entry title
+		final ToggleButton button = new ToggleButton(entryTitle);
+		button.setPixelSize(225, 20);
+		button.addClickHandler(new ClickHandler() {
 
 			public void onClick(ClickEvent event) {
 				// TODO Auto-generated method stub
-				System.out.println("Image clicked");
+				System.out.println("Toggle clicked: " + entryTitle);
+				button.setDown(false);
 			}
-		};
+		});
 
-		// add images to image column
+		// the entry also has an clickable image to delete the entry
 		Image deleteImage = new Image("images/delete.png");
-		deleteImage.addClickHandler(ch);
-		images.add(deleteImage);
+		deleteImage.addClickHandler(new ClickHandler() {
 
-		Image deleteImage2 = new Image("images/delete.png");
-		deleteImage2.addClickHandler(ch);
-		images.add(deleteImage2);
+			public void onClick(ClickEvent event) {
+				// TODO Auto-generated method stub
+				System.out.println("Delete image clicked");
+			}
+		});
 
-		tab.add(labels, new ColumnLayoutData(.85));
-		tab.add(images, new ColumnLayoutData(.15));
+		// create the new panel and add componenets
+		Panel entry = new Panel();
+		entry.setBorder(false);
+		entry.setLayout(new HorizontalLayout(15));
 
-		return tab;
+		entry.add(button);
+		entry.add(deleteImage);
+
+		return entry;
 	}
 
 	private Panel buildLocationPanel() {
