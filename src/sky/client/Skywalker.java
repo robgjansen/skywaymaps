@@ -30,6 +30,17 @@ public class Skywalker implements EntryPoint {
 	private final int HEIGHT = 480;
 	private final String FAV_LINK_TEXTSTYLE = "font-family: Verdana;color: blue;font-size: 20px;text-align: center;text-decoration: underline;";
 
+	//maps stuff
+	private final int CENTER = 0;
+	private final int UP = 1;
+	private final int LEFT = 2;
+	private final int RIGHT = 3;
+	private final int DOWN = 4;
+	private boolean zoomedIn = false;
+	private boolean showLocation = false;
+	private int currentLocation = 0;
+	Panel mapMainPanel = new Panel();
+
 	/**
 	 * This is the entry point method.
 	 */
@@ -71,7 +82,7 @@ public class Skywalker implements EntryPoint {
 						mainWindow.doLayout();
 					}
 				});
-		// We can add style names to widgets -- styled with css
+		// We can add style names to widgets -- styled with cssclea
 		launchButton.addStyleName("launchButton");
 		launchButton.setStyle("align: center;");
 		launchButton.setMinWidth(105);
@@ -273,18 +284,184 @@ public class Skywalker implements EntryPoint {
 	}
 
 	private Panel buildLocationPanel() {
-		// TODO: implement me!
-		return buildTestPanel("Location panel goes here");
+		showLocation = true;
+		updateMap();
+		return mapMainPanel;
 	}
 
 	private Panel buildDirectionPanel() {
+		zoomedIn = true;
 		// TODO: implement me!
 		return buildTestPanel("Directions panel goes here");
 	}
 
 	private Panel buildMapPanel() {
-		// TODO: implement me!
-		return buildTestPanel("Map panel goes here");
+		Panel topPanel = buildTopPanel();
+		Panel mapPanel = buildMap();
+		mapMainPanel.add(topPanel);
+        mapMainPanel.add(mapPanel);
+        return mapMainPanel;
+	}
+	
+	private void updateMap() {
+		mapMainPanel.removeAll();
+		Panel topPanel = buildTopPanel();
+		Panel mapPanel = buildMap();
+		mapMainPanel.add(topPanel);
+		mapMainPanel.add(mapPanel);
+		topPanel.show();
+		topPanel.doLayout(true);
+		mapPanel.show();
+		mapPanel.doLayout(true);
+		mapMainPanel.doLayout(true);
+		System.out.println("Zoom: " + zoomedIn);
+		System.out.println("Location: " + currentLocation);
+		System.out.println("ShowLocation: " + showLocation);
+	}
+	
+	private Panel buildTopPanel() {
+		Panel topPanel = new Panel();
+		topPanel.setLayout(new HorizontalLayout(100));
+
+        //create panning images button
+		Panel panPanel = new Panel();
+
+        final ToggleButton upImage = new ToggleButton(new Image("images/up.jpg"));
+		upImage.setPixelSize(10, 10);
+		upImage.addClickHandler(new ClickHandler() {
+			public void onClick(ClickEvent event) {
+				if (zoomedIn && !showLocation && currentLocation == CENTER) {
+					currentLocation = UP;
+					updateMap();
+				} else if (zoomedIn && !showLocation && currentLocation == DOWN) {
+					currentLocation = CENTER;
+					updateMap();
+				}
+				System.out.println("Up clicked");
+				upImage.setDown(false);
+			}
+		});
+		Panel upPanPanel = new Panel();
+		upPanPanel.setPaddings(0, 15, 0, 0);
+		upPanPanel.add(upImage);
+
+		Panel leftRightPanPanel = new Panel();
+		leftRightPanPanel.setLayout(new HorizontalLayout(15));
+		final ToggleButton leftImage = new ToggleButton(new Image("images/left.jpg"));
+		leftImage.setPixelSize(10, 10);
+		leftImage.addClickHandler(new ClickHandler() {
+			public void onClick(ClickEvent event) {
+				//TODO
+				System.out.println("Left clicked");
+				leftImage.setDown(false);
+			}
+		});
+		final ToggleButton rightImage = new ToggleButton(new Image("images/right.jpg"));
+		rightImage.setPixelSize(10, 10);
+		rightImage.addClickHandler(new ClickHandler() {
+			public void onClick(ClickEvent event) {
+				//TODO
+				System.out.println("Right clicked");
+				rightImage.setDown(false);
+			}
+		});
+		leftRightPanPanel.add(leftImage);
+		leftRightPanPanel.add(rightImage);
+
+		final ToggleButton downImage = new ToggleButton(new Image("images/down.jpg"));
+		downImage.setPixelSize(10, 10);
+		downImage.addClickHandler(new ClickHandler() {
+			public void onClick(ClickEvent event) {
+				if (zoomedIn && !showLocation && currentLocation == UP) {
+					currentLocation = CENTER;
+					updateMap();
+				} else if (zoomedIn && !showLocation && currentLocation == CENTER) {
+					currentLocation = DOWN;
+					updateMap();
+				}
+				System.out.println("Down clicked");
+				downImage.setDown(false);
+			}
+		});
+		Panel downPanPanel = new Panel();
+		downPanPanel.setPaddings(0, 15, 0, 0);
+		downPanPanel.add(downImage);
+
+		panPanel.add(upPanPanel);
+		panPanel.add(leftRightPanPanel);
+		panPanel.add(downPanPanel);
+		topPanel.add(panPanel);
+				                
+        //create zoom images button
+		Panel zoomPanel = new Panel();
+		if (!zoomedIn) {
+			final ToggleButton zoomInImage = new ToggleButton(new Image("images/zoomInButton.jpg"));
+			zoomInImage.addClickHandler(new ClickHandler() {
+				public void onClick(ClickEvent event) {
+					System.out.println("ZoomIn clicked");
+					zoomedIn = true;
+					zoomInImage.setDown(false);
+					updateMap();
+				}
+			});
+			final ToggleButton zoomOutImage = new ToggleButton(new Image("images/zoomOut.jpg"));
+			zoomOutImage.addClickHandler(new ClickHandler() {
+				public void onClick(ClickEvent event) {
+					zoomOutImage.setDown(false);
+				}
+			});
+			zoomPanel.add(zoomInImage);
+			zoomPanel.add(zoomOutImage);
+		} else {
+			final ToggleButton zoomInImage = new ToggleButton(new Image("images/zoomIn.jpg"));
+			zoomInImage.addClickHandler(new ClickHandler() {
+				public void onClick(ClickEvent event) {
+					zoomInImage.setDown(false);
+				}
+			});
+			final ToggleButton zoomOutImage = new ToggleButton(new Image("images/zoomOutButton.jpg"));
+			zoomOutImage.addClickHandler(new ClickHandler() {
+				public void onClick(ClickEvent event) {
+					System.out.println("ZoomOut clicked");
+					zoomedIn = false;
+					zoomOutImage.setDown(false);
+					updateMap();
+				}
+			});
+			zoomPanel.add(zoomInImage);
+			zoomPanel.add(zoomOutImage);
+		}
+		topPanel.add(zoomPanel);	
+		
+		return topPanel;
+	}
+
+	//create map	
+	private Panel buildMap() {
+		Panel mapPanel = new Panel();
+		mapPanel.setLayout(new FitLayout());
+		Image mapImage = null;
+		if (zoomedIn && showLocation) {
+			mapImage = new Image("images/TargetPlazaLocation.jpg");
+		} else if (zoomedIn && !showLocation) {
+			if (currentLocation == CENTER) {
+				mapImage = new Image("images/TargetPlaza.jpg");
+			} else if (currentLocation == UP) {
+				mapImage = new Image("images/TargetPlazaUp.jpg");
+			} else if (currentLocation == DOWN) {
+				mapImage = new Image("images/TargetPlazaDown.jpg");
+			} else if (currentLocation == LEFT) {
+				mapImage = new Image("images/TargetPlazaLeft.jpg");
+			} else if (currentLocation == RIGHT) {
+				mapImage = new Image("images/TargetPlazaRight.jpg");
+			}
+		} else if (!zoomedIn && showLocation) {
+			mapImage = new Image("images/wholeMapLocation.jpg");
+		} else if (!zoomedIn && !showLocation) {
+			mapImage = new Image("images/wholeMap.jpg");
+		}
+		mapPanel.add(mapImage);
+		return mapPanel;
 	}
 
 	private Panel buildTestPanel(String testMessage) {
