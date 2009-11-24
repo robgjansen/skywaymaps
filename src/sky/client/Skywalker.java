@@ -39,7 +39,7 @@ public class Skywalker implements EntryPoint {
 	private boolean zoomedIn = false;
 	private boolean showLocation = false;
 	private int currentLocation = 0;
-	Panel mapMainPanel = new Panel();
+	final Panel mapMainPanel = new Panel();
 
 	/**
 	 * This is the entry point method.
@@ -98,11 +98,11 @@ public class Skywalker implements EntryPoint {
 		// set up all dynamic content - buttons, panels, listeners, etc
 
 		// main map area
-		Panel mapPanel = buildMapPanel();
+		Panel mapPanel = buildMapPanel(mainWindowPannel);
 
 		// main areas for toggle content
 		Panel directionPanel = buildDirectionPanel();
-		Panel locationPanel = buildLocationPanel();
+		Panel locationPanel = buildLocationPanel(mainWindowPannel);
 		Panel favoritePanel = buildFavoritePanel();
 
 		// setup bottom toggles on main window
@@ -162,6 +162,8 @@ public class Skywalker implements EntryPoint {
 					directionsToggle.setPressed(false);
 					favoriteToggle.setPressed(false);
 					// show location panel
+					showLocation = true;
+					updateMap(mainWindowPannel);
 					clearAndLoad(mainWindowPannel, locationPanel);
 				} else {
 					// hide location panel
@@ -283,43 +285,41 @@ public class Skywalker implements EntryPoint {
 		return entry;
 	}
 
-	private Panel buildLocationPanel() {
-		showLocation = true;
-		updateMap();
+	private Panel buildLocationPanel(final Panel mainWindowPannel) {
 		return mapMainPanel;
 	}
 
 	private Panel buildDirectionPanel() {
-		zoomedIn = true;
 		// TODO: implement me!
 		return buildTestPanel("Directions panel goes here");
 	}
 
-	private Panel buildMapPanel() {
-		Panel topPanel = buildTopPanel();
+	private Panel buildMapPanel(final Panel mainWindowPannel) {
+		Panel topPanel = buildTopPanel(mainWindowPannel);
 		Panel mapPanel = buildMap();
 		mapMainPanel.add(topPanel);
         mapMainPanel.add(mapPanel);
         return mapMainPanel;
 	}
 	
-	private void updateMap() {
+	private void updateMap(final Panel mainWindowPannel) {
 		mapMainPanel.removeAll();
-		Panel topPanel = buildTopPanel();
+		Panel topPanel = buildTopPanel(mainWindowPannel);
 		Panel mapPanel = buildMap();
+		topPanel.show();
+		topPanel.doLayout();
+		mapPanel.show();
+		mapPanel.doLayout();
 		mapMainPanel.add(topPanel);
 		mapMainPanel.add(mapPanel);
-		topPanel.show();
-		topPanel.doLayout(true);
-		mapPanel.show();
-		mapPanel.doLayout(true);
-		mapMainPanel.doLayout(true);
+		mapMainPanel.doLayout();
+		clearAndLoad(mainWindowPannel, mapMainPanel);
 		System.out.println("Zoom: " + zoomedIn);
 		System.out.println("Location: " + currentLocation);
 		System.out.println("ShowLocation: " + showLocation);
 	}
 	
-	private Panel buildTopPanel() {
+	private Panel buildTopPanel(final Panel mainWindowPannel) {
 		Panel topPanel = new Panel();
 		topPanel.setLayout(new HorizontalLayout(100));
 
@@ -332,10 +332,10 @@ public class Skywalker implements EntryPoint {
 			public void onClick(ClickEvent event) {
 				if (zoomedIn && !showLocation && currentLocation == CENTER) {
 					currentLocation = UP;
-					updateMap();
+					updateMap(mainWindowPannel);
 				} else if (zoomedIn && !showLocation && currentLocation == DOWN) {
 					currentLocation = CENTER;
-					updateMap();
+					updateMap(mainWindowPannel);
 				}
 				System.out.println("Up clicked");
 				upImage.setDown(false);
@@ -351,7 +351,13 @@ public class Skywalker implements EntryPoint {
 		leftImage.setPixelSize(10, 10);
 		leftImage.addClickHandler(new ClickHandler() {
 			public void onClick(ClickEvent event) {
-				//TODO
+				if (zoomedIn && !showLocation && currentLocation == RIGHT) {
+					currentLocation = CENTER;
+					updateMap(mainWindowPannel);
+				} else if (zoomedIn && !showLocation && currentLocation == CENTER) {
+					currentLocation = LEFT;
+					updateMap(mainWindowPannel);
+				}
 				System.out.println("Left clicked");
 				leftImage.setDown(false);
 			}
@@ -360,7 +366,13 @@ public class Skywalker implements EntryPoint {
 		rightImage.setPixelSize(10, 10);
 		rightImage.addClickHandler(new ClickHandler() {
 			public void onClick(ClickEvent event) {
-				//TODO
+				if (zoomedIn && !showLocation && currentLocation == LEFT) {
+					currentLocation = CENTER;
+					updateMap(mainWindowPannel);
+				} else if (zoomedIn && !showLocation && currentLocation == CENTER) {
+					currentLocation = RIGHT;
+					updateMap(mainWindowPannel);
+				}
 				System.out.println("Right clicked");
 				rightImage.setDown(false);
 			}
@@ -374,10 +386,10 @@ public class Skywalker implements EntryPoint {
 			public void onClick(ClickEvent event) {
 				if (zoomedIn && !showLocation && currentLocation == UP) {
 					currentLocation = CENTER;
-					updateMap();
+					updateMap(mainWindowPannel);
 				} else if (zoomedIn && !showLocation && currentLocation == CENTER) {
 					currentLocation = DOWN;
-					updateMap();
+					updateMap(mainWindowPannel);
 				}
 				System.out.println("Down clicked");
 				downImage.setDown(false);
@@ -401,7 +413,7 @@ public class Skywalker implements EntryPoint {
 					System.out.println("ZoomIn clicked");
 					zoomedIn = true;
 					zoomInImage.setDown(false);
-					updateMap();
+					updateMap(mainWindowPannel);
 				}
 			});
 			final ToggleButton zoomOutImage = new ToggleButton(new Image("images/zoomOut.jpg"));
@@ -424,8 +436,9 @@ public class Skywalker implements EntryPoint {
 				public void onClick(ClickEvent event) {
 					System.out.println("ZoomOut clicked");
 					zoomedIn = false;
+					currentLocation = CENTER;
 					zoomOutImage.setDown(false);
-					updateMap();
+					updateMap(mainWindowPannel);
 				}
 			});
 			zoomPanel.add(zoomInImage);
