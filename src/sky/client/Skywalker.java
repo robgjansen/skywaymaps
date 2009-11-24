@@ -8,6 +8,8 @@ import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.RootPanel;
 import com.google.gwt.user.client.ui.ToggleButton;
 import com.gwtext.client.core.EventObject;
+import com.gwtext.client.data.SimpleStore;
+import com.gwtext.client.data.Store;
 import com.gwtext.client.widgets.Button;
 import com.gwtext.client.widgets.Panel;
 import com.gwtext.client.widgets.TabPanel;
@@ -15,8 +17,8 @@ import com.gwtext.client.widgets.Toolbar;
 import com.gwtext.client.widgets.ToolbarButton;
 import com.gwtext.client.widgets.Window;
 import com.gwtext.client.widgets.event.ButtonListenerAdapter;
-import com.gwtext.client.widgets.layout.ColumnLayout;
-import com.gwtext.client.widgets.layout.ColumnLayoutData;
+import com.gwtext.client.widgets.form.ComboBox;
+import com.gwtext.client.widgets.form.FormPanel;
 import com.gwtext.client.widgets.layout.FitLayout;
 import com.gwtext.client.widgets.layout.HorizontalLayout;
 import com.gwtext.client.widgets.layout.VerticalLayout;
@@ -29,6 +31,13 @@ public class Skywalker implements EntryPoint {
 	private final int WIDTH = 320;
 	private final int HEIGHT = 480;
 	private final String FAV_LINK_TEXTSTYLE = "font-family: Verdana;color: blue;font-size: 20px;text-align: center;text-decoration: underline;";
+	private final String[][] DIRECTION_DATA = new String[][] {
+			new String[] { "Target Plaza" }, new String[] { "Target Store" },
+			new String[] { "Target Center with prostitutes everywhere" },
+			new String[] { "Macy's" } };
+	private final String[][] PACE_DATA = new String[][] {
+			new String[] { "Slow" }, new String[] { "Medium" },
+			new String[] { "Fast" } };
 
 	//maps stuff
 	private final int CENTER = 0;
@@ -276,6 +285,7 @@ public class Skywalker implements EntryPoint {
 		// create the new panel and add componenets
 		Panel entry = new Panel();
 		entry.setBorder(false);
+		entry.setHeader(false);
 		entry.setLayout(new HorizontalLayout(10));
 		entry.setMargins(5);
 
@@ -290,8 +300,133 @@ public class Skywalker implements EntryPoint {
 	}
 
 	private Panel buildDirectionPanel() {
-		// TODO: implement me!
-		return buildTestPanel("Directions panel goes here");
+		Panel directionPanelWrapper = new Panel("Directions");
+		directionPanelWrapper.setLayout(new VerticalLayout(1));
+		directionPanelWrapper.setBorder(false);
+		directionPanelWrapper.setHeight(HEIGHT);
+
+		Panel directionPanel = new Panel();
+		directionPanel.setLayout(new VerticalLayout(10));
+		directionPanel.setPaddings(10);
+		directionPanel.setBorder(false);
+		directionPanel.setHeader(false);
+
+		directionPanel.add(buildSearchBoxHeader("From:"));
+		directionPanel.add(buildSearchBox());
+		directionPanel.add(buildSearchBoxHeader("To:"));
+		directionPanel.add(buildSearchBox());
+		directionPanel.add(buildPace());
+		directionPanel.add(buildRadioOpts());
+		directionPanel.add(buildGetMap());
+
+		directionPanelWrapper.add(directionPanel);
+		directionPanelWrapper.doLayout();
+
+		return directionPanelWrapper;
+	}
+
+	private Panel buildSearchBoxHeader(String title) {
+		Panel p = buildRowPanel();
+
+		Label l = new Label(title);
+		l.setWidth("40");
+		p.add(l);
+		Image list = new Image("images/listfav.png");
+		p.add(list);
+
+		return p;
+	}
+
+	private Panel buildSearchBox() {
+		final Store store = new SimpleStore(new String[] { "location" },
+				DIRECTION_DATA);
+		store.load();
+
+		ComboBox cb = new ComboBox();
+		cb.setMinChars(1);
+		// we have a custom label
+		cb.setHideLabel(true);
+		cb.setStore(store);
+		cb.setDisplayField("location");
+		cb.setMode(ComboBox.LOCAL);
+		cb.setTriggerAction(ComboBox.ALL);
+		cb.setEmptyText("Enter location");
+		cb.setLoadingText("Searching...");
+		cb.setTypeAhead(true);
+		cb.setSelectOnFocus(true);
+		cb.setForceSelection(true);
+		cb.setEditable(true);
+		cb.setAllowBlank(false);
+		cb.setPageSize(10);
+		cb.setTitle("Current Location");
+		cb.setWidth(240);
+
+		FormPanel form = new FormPanel();
+		form.setWidth(300);
+		form.setBorder(false);
+		form.add(cb);
+
+		Panel p = buildRowPanel();
+		p.add(form);
+
+		return p;
+	}
+
+	private Panel buildPace() {
+		final Store store = new SimpleStore(new String[] { "pace" }, PACE_DATA);
+		store.load();
+
+		Label pace = new Label("Pace:");
+		pace.setPixelSize(40, 25);
+
+		ComboBox cb = new ComboBox();
+		cb.setHideLabel(true);
+		cb.setStore(store);
+		cb.setDisplayField("pace");
+		cb.setMode(ComboBox.LOCAL);
+		cb.setTriggerAction(ComboBox.ALL);
+		cb.setEmptyText("Enter desired pace");
+		cb.setLoadingText("Searching...");
+		cb.setTypeAhead(true);
+		cb.setSelectOnFocus(true);
+		cb.setForceSelection(true);
+		cb.setEditable(false);
+		cb.setAllowBlank(false);
+		cb.setWidth(100);
+		cb.setPageSize(0);
+		cb.setValue("Medium");
+
+		FormPanel form = new FormPanel();
+		form.setLabelWidth(40);
+		form.setBorder(false);
+		form.add(cb);
+		form.setWidth(200);
+		form.setAutoScroll(false);
+
+		Panel p = buildRowPanel();
+		p.add(pace);
+		p.add(form);
+
+		return p;
+	}
+
+	private Panel buildRowPanel() throws IllegalStateException {
+		Panel p = new Panel("", WIDTH, 25);
+		p.setBorder(false);
+		p.setHeader(false);
+		p.setLayout(new HorizontalLayout(10));
+		p.setAutoWidth(true);
+		return p;
+	}
+
+	private Panel buildRadioOpts() {
+		// TODO Auto-generated method stub
+		return buildTestPanel("radio options");
+	}
+
+	private Panel buildGetMap() {
+		// TODO Auto-generated method stub
+		return buildTestPanel("checkbox and get map button");
 	}
 
 	private Panel buildMapPanel(final Panel mainWindowPannel) {
