@@ -7,6 +7,9 @@ import com.google.gwt.user.client.ui.Image;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.RootPanel;
 import com.google.gwt.user.client.ui.ToggleButton;
+import com.google.gwt.user.client.ui.RadioButton;
+import com.google.gwt.user.client.ui.PopupPanel;
+import com.gwtext.client.widgets.form.TextField;
 import com.gwtext.client.core.EventObject;
 import com.gwtext.client.data.SimpleStore;
 import com.gwtext.client.data.Store;
@@ -45,9 +48,14 @@ public class Skywalker implements EntryPoint {
 	private final int LEFT = 2;
 	private final int RIGHT = 3;
 	private final int DOWN = 4;
+	private final int NO_DIRECTION = 0;
+	private final int TARGET_MACY = 1;
+	private final int TARGET_TARGET = 2;
+	private final int TARGET_MACY_30 = 3;
 	private boolean zoomedIn = false;
 	private boolean showLocation = false;
-	private int currentLocation = 0;
+	private int currentLocation = CENTER;
+	private int currentDirection = NO_DIRECTION;
 	final Panel mapMainPanel = new Panel();
 
 	/**
@@ -110,7 +118,7 @@ public class Skywalker implements EntryPoint {
 		Panel mapPanel = buildMapPanel(mainWindowPannel);
 
 		// main areas for toggle content
-		Panel directionPanel = buildDirectionPanel();
+		Panel directionPanel = buildDirectionPanel(mainWindowPannel);
 		Panel locationPanel = buildLocationPanel(mainWindowPannel);
 		Panel favoritePanel = buildFavoritePanel();
 
@@ -299,7 +307,7 @@ public class Skywalker implements EntryPoint {
 		return mapMainPanel;
 	}
 
-	private Panel buildDirectionPanel() {
+	private Panel buildDirectionPanel(final Panel mainWindowPannel) {
 		Panel directionPanelWrapper = new Panel("Directions");
 		directionPanelWrapper.setLayout(new VerticalLayout(1));
 		directionPanelWrapper.setBorder(false);
@@ -317,7 +325,7 @@ public class Skywalker implements EntryPoint {
 		directionPanel.add(buildSearchBox());
 		directionPanel.add(buildPace());
 		directionPanel.add(buildRadioOpts());
-		directionPanel.add(buildGetMap());
+		directionPanel.add(buildGetMap(mainWindowPannel));
 
 		directionPanelWrapper.add(directionPanel);
 		directionPanelWrapper.doLayout();
@@ -420,13 +428,58 @@ public class Skywalker implements EntryPoint {
 	}
 
 	private Panel buildRadioOpts() {
-		// TODO Auto-generated method stub
-		return buildTestPanel("radio options");
+		// TODO add "spinner" value text field or toggle buttons for up/down arrows
+		final TextField text = new TextField();
+		text.setValue("0.5");
+		RadioButton miles = new RadioButton("myRadioButton", "Miles");
+		miles.addClickHandler(new ClickHandler() {
+			public void onClick(ClickEvent event) {
+				System.out.println("miles clicked");
+				currentDirection = TARGET_MACY;
+				text.setValue("0.5");
+			}
+		});
+		miles.setChecked(true);
+		RadioButton minutes = new RadioButton("myRadioButton", "Minutes");
+		minutes.addClickHandler(new ClickHandler() {
+			public void onClick(ClickEvent event) {
+				System.out.println("minutes clicked");
+				currentDirection = TARGET_MACY_30;
+				text.setValue("30");
+			}
+		});
+		Panel panel = buildRowPanel();
+		panel.add(miles);
+		panel.add(minutes);
+		panel.add(text);
+		return panel;
 	}
 
-	private Panel buildGetMap() {
-		// TODO Auto-generated method stub
-		return buildTestPanel("checkbox and get map button");
+	private Panel buildGetMap(final Panel mainWindowPannel) {
+		final ToggleButton save = new ToggleButton("Save");
+		save.setPixelSize(50, 20);
+		save.addClickHandler(new ClickHandler() {
+			public void onClick(ClickEvent event) {
+				//TODO to be implemented (if needed)
+				System.out.println("Save button clicked");
+				save.setDown(false);
+			}
+		});
+		final ToggleButton getMap = new ToggleButton("Get Map");
+		getMap.setPixelSize(100, 20);
+		getMap.addClickHandler(new ClickHandler() {
+			public void onClick(ClickEvent event) {
+				if (currentDirection == NO_DIRECTION) {
+					currentDirection = TARGET_MACY;
+				}
+				updateMap(mainWindowPannel);
+				getMap.setDown(false);
+			}
+		});
+		Panel panel = buildRowPanel();
+		panel.add(save);
+		panel.add(getMap);
+		return panel;
 	}
 
 	private Panel buildMapPanel(final Panel mainWindowPannel) {
@@ -456,7 +509,7 @@ public class Skywalker implements EntryPoint {
 	
 	private Panel buildTopPanel(final Panel mainWindowPannel) {
 		Panel topPanel = new Panel();
-		topPanel.setLayout(new HorizontalLayout(100));
+		topPanel.setLayout(new HorizontalLayout(50));
 
         //create panning images button
 		Panel panPanel = new Panel();
@@ -581,6 +634,45 @@ public class Skywalker implements EntryPoint {
 		}
 		topPanel.add(zoomPanel);	
 		
+		//create directions button if needed
+		if (currentDirection != NO_DIRECTION) {
+			final Panel directionPanel = new Panel();
+			final ToggleButton directions = new ToggleButton("Info");
+			directions.setPixelSize(50, 20);
+			directions.addClickHandler(new ClickHandler() {
+				public void onClick(ClickEvent event) {
+					System.out.println("Directions clicked");
+					//TODO add popup
+					// Create the new popup.
+        			final PopupPanel popup = new PopupPanel(true);
+			        // Position the popup 1/3rd of the way down and across the screen, and
+			        // show the popup. Since the position calculation is based on the
+			        // offsetWidth and offsetHeight of the popup, you have to use the
+			        // setPopupPositionAndShow(callback) method. The alternative would
+			        // be to call show(), calculate the left and top positions, and
+			        // call setPopupPosition(left, top). This would have the ugly side
+			        // effect of the popup jumping from its original position to its
+			        // new position.
+			        /*popup.setPopupPositionAndShow(new PopupPanel.PositionCallback() {
+						public void setPosition(int offsetWidth, int offsetHeight) {
+			         		int left = (Window.getClientWidth() - offsetWidth) / 3;
+            				int top = (Window.getClientHeight() - offsetHeight) / 3;
+			         		popup.setPopupPosition(left, top);
+			            }
+			        });*/
+			        TextField label = new TextField("From: Target\nTo: Macys\nGo Straight\nTurn right at corner\nTurn left");
+			        label.setValue("From: Target\nTo: Macys\nGo Straight\nTurn right at corner\nTurn left");
+			        popup.add(label);
+			        popup.setTitle("Detailed Directions");
+			        //topPanel.add(popup);
+			        popup.show();
+					directions.setDown(false);
+				}
+			});
+			directionPanel.add(directions);
+			topPanel.add(directionPanel);
+		}
+		
 		return topPanel;
 	}
 
@@ -589,24 +681,30 @@ public class Skywalker implements EntryPoint {
 		Panel mapPanel = new Panel();
 		mapPanel.setLayout(new FitLayout());
 		Image mapImage = null;
-		if (zoomedIn && showLocation) {
-			mapImage = new Image("images/TargetPlazaLocation.jpg");
-		} else if (zoomedIn && !showLocation) {
-			if (currentLocation == CENTER) {
-				mapImage = new Image("images/TargetPlaza.jpg");
-			} else if (currentLocation == UP) {
-				mapImage = new Image("images/TargetPlazaUp.jpg");
-			} else if (currentLocation == DOWN) {
-				mapImage = new Image("images/TargetPlazaDown.jpg");
-			} else if (currentLocation == LEFT) {
-				mapImage = new Image("images/TargetPlazaLeft.jpg");
-			} else if (currentLocation == RIGHT) {
-				mapImage = new Image("images/TargetPlazaRight.jpg");
+		if (currentDirection == NO_DIRECTION) {
+			if (zoomedIn && showLocation) {
+				mapImage = new Image("images/TargetPlazaLocation.jpg");
+			} else if (zoomedIn && !showLocation) {
+				if (currentLocation == CENTER) {
+					mapImage = new Image("images/TargetPlaza.jpg");
+				} else if (currentLocation == UP) {
+					mapImage = new Image("images/TargetPlazaUp.jpg");
+				} else if (currentLocation == DOWN) {
+					mapImage = new Image("images/TargetPlazaDown.jpg");
+				} else if (currentLocation == LEFT) {
+					mapImage = new Image("images/TargetPlazaLeft.jpg");
+				} else if (currentLocation == RIGHT) {
+					mapImage = new Image("images/TargetPlazaRight.jpg");
+				}
+			} else if (!zoomedIn && showLocation) {
+				mapImage = new Image("images/wholeMapLocation.jpg");
+			} else if (!zoomedIn && !showLocation) {
+				mapImage = new Image("images/wholeMap.jpg");
 			}
-		} else if (!zoomedIn && showLocation) {
-			mapImage = new Image("images/wholeMapLocation.jpg");
-		} else if (!zoomedIn && !showLocation) {
-			mapImage = new Image("images/wholeMap.jpg");
+		} else if (currentDirection == TARGET_MACY) {
+			mapImage = new Image("images/TargetPlazaMacysShortest.jpg");
+		} else if (currentDirection == TARGET_MACY_30) {
+			mapImage = new Image("images/TargetPlazaMacys30Mins.jpg");
 		}
 		mapPanel.add(mapImage);
 		return mapPanel;
