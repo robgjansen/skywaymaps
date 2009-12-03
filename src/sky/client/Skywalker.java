@@ -36,7 +36,7 @@ public class Skywalker implements EntryPoint {
 	private final String FAV_LINK_TEXTSTYLE = "font-family: Verdana;color: blue;font-size: 20px;text-align: center;text-decoration: underline;";
 	private final String[][] DIRECTION_DATA = new String[][] {
 			new String[] { "Target Plaza" }, new String[] { "Target Store" },
-			new String[] { "Target Center with prostitutes everywhere" },
+			new String[] { "Target Center" },
 			new String[] { "Macy's" } };
 	private final String[][] PACE_DATA = new String[][] {
 			new String[] { "Slow" }, new String[] { "Medium" },
