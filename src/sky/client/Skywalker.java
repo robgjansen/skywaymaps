@@ -58,57 +58,22 @@ public class Skywalker implements EntryPoint {
 	private int currentDirection = NO_DIRECTION;
 	final Panel mapMainPanel = new Panel();
 
+	final Panel mainWindowPannel = new Panel("Skywalker Demo");
+
 	/**
 	 * This is the entry point method.
 	 */
 	public void onModuleLoad() {
-		// create phone window
-		final Window mainWindow = new Window();
-		mainWindow.setTitle("Skywalker");
-		mainWindow.setMaximizable(false);
-		mainWindow.setResizable(false);
-		mainWindow.setModal(false);
-		mainWindow.setLayout(new FitLayout());
-		mainWindow.setSize(WIDTH, HEIGHT);
-		mainWindow.setBorder(true);
-		mainWindow.setPosition(0, 0);
-
 		// panel inside the main window
-		final Panel mainWindowPannel = new Panel();
 		mainWindowPannel.setBorder(true);
 
-		// -- add stuff to the main window panel here --
 		buildApplication(mainWindowPannel);
 
-		// connect main window panel to the main window
-		mainWindow.add(mainWindowPannel);
+		RootPanel.get().add(mainWindowPannel);
 
-		// outermost panel that holds the launch button
-		final Panel shellPanel = new Panel();
-		shellPanel.setBorder(false);
-		shellPanel.setTitle("Skywalker Demo");
-		shellPanel.setWidth(105);
-
-		final Button launchButton = new Button("Launch Demo!",
-				new ButtonListenerAdapter() {
-					public void onClick(Button button, EventObject e) {
-						shellPanel.hide();
-						mainWindow.show();
-						mainWindow.center();
-						// updates the gui
-						mainWindow.doLayout();
-					}
-				});
-		// We can add style names to widgets -- styled with cssclea
-		launchButton.addStyleName("launchButton");
-		launchButton.setStyle("align: center;");
-		launchButton.setMinWidth(105);
-
-		shellPanel.add(launchButton);
-
-		// Add the launchButton to the RootPanel
-		// Use RootPanel.get() to get the entire body element
-		RootPanel.get().add(shellPanel);
+		// updates the gui
+		mainWindowPannel.setSize(WIDTH, HEIGHT);
+		mainWindowPannel.doLayout();
 	}
 
 	private void buildApplication(final Panel mainWindowPannel) {
@@ -233,7 +198,6 @@ public class Skywalker implements EntryPoint {
 
 		tabs.add(buildWalkTab());
 		tabs.add(buildLocationTab());
-		tabs.doLayout();
 
 		favoritePanel.add(tabs);
 
@@ -328,7 +292,6 @@ public class Skywalker implements EntryPoint {
 		directionPanel.add(buildGetMap(mainWindowPannel));
 
 		directionPanelWrapper.add(directionPanel);
-		directionPanelWrapper.doLayout();
 
 		return directionPanelWrapper;
 	}
@@ -495,12 +458,9 @@ public class Skywalker implements EntryPoint {
 		Panel topPanel = buildTopPanel(mainWindowPannel);
 		Panel mapPanel = buildMap();
 		topPanel.show();
-		topPanel.doLayout();
 		mapPanel.show();
-		mapPanel.doLayout();
 		mapMainPanel.add(topPanel);
 		mapMainPanel.add(mapPanel);
-		mapMainPanel.doLayout();
 		clearAndLoad(mainWindowPannel, mapMainPanel);
 		System.out.println("Zoom: " + zoomedIn);
 		System.out.println("Location: " + currentLocation);
