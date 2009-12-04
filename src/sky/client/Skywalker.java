@@ -30,8 +30,9 @@ import com.gwtext.client.widgets.layout.VerticalLayout;
  */
 public class Skywalker implements EntryPoint {
 
-	private final int WIDTH = 320;
-	private final int HEIGHT = 480;
+	// ipod - 320W x 480H
+	private final int WIDTH = 300;
+	private final int HEIGHT = 460;
 	private final String FAV_LINK_TEXTSTYLE = "font-family: Verdana;color: blue;font-size: 20px;text-align: center;text-decoration: underline;";
 	private final String[][] DIRECTION_DATA = new String[][] {
 			new String[] { "Target Plaza" }, new String[] { "Target Store" },
@@ -59,6 +60,8 @@ public class Skywalker implements EntryPoint {
 	final Panel mapMainPanel = new Panel();
 	final Panel mainPannel = new Panel("Skywalker Demo");
 	final Panel directionPanel = new Panel("Directions");
+	final Panel mapPanel = new Panel("Map");
+	final Panel favoritePanel = new Panel("Favorites");
 
 	/**
 	 * This is the entry point method.
@@ -80,15 +83,11 @@ public class Skywalker implements EntryPoint {
 	}
 
 	private void buildApplication() {
-		// set up all dynamic content - buttons, panels, listeners, etc
+		buildMapPanel();
 
-		// main map area
-		Panel mapPanel = buildMapPanel();
-
-		// main areas for toggle content
 		buildDirectionPanel();
 		Panel locationPanel = buildLocationPanel();
-		Panel favoritePanel = buildFavoritePanel();
+		buildFavoritePanel();
 
 		// setup bottom toggles on main window
 		Toolbar bottomBar = buildBottomToggleBar(mainPannel, mapPanel,
@@ -119,6 +118,9 @@ public class Skywalker implements EntryPoint {
 		final ToolbarButton locationToggle = buildToggle(bottomBar,
 				"Get Location");
 		final ToolbarButton favoriteToggle = buildToggle(bottomBar, "Favorites");
+		
+		//directions is default
+		directionsToggle.setPressed(true);
 
 		directionsToggle.addListener(new ButtonListenerAdapter() {
 			public void onClick(Button button, EventObject e) {
@@ -178,35 +180,26 @@ public class Skywalker implements EntryPoint {
 		ToolbarButton toggle = new ToolbarButton(title);
 		toggle.setEnableToggle(true);
 		toggle.setPressed(false);
-		// 6 pixels for padding
-		toggle.setMinWidth((WIDTH / 3) - 6);
+		toggle.setMinWidth((WIDTH / 3));
 		bottomBar.addButton(toggle);
 		return toggle;
 	}
 
-	private Panel buildFavoritePanel() {
-		// wrapper for the tabs component
-		Panel favoritePanel = new Panel("Favorites");
-		favoritePanel.setLayout(new VerticalLayout(1));
-
-		// the tabs
+	private void buildFavoritePanel() {
 		TabPanel tabs = new TabPanel();
 		tabs.setResizeTabs(false);
 		tabs.setBorder(false);
-		// apparently you cant set the layout of a tabbed panel
-		tabs.setHeight(HEIGHT);
 
 		tabs.add(buildWalkTab());
 		tabs.add(buildLocationTab());
 
 		favoritePanel.add(tabs);
-
-		return favoritePanel;
+		favoritePanel.setBorder(false);
 	}
 
 	private Panel buildLocationTab() {
 		Panel tab = new Panel("Locations");
-		tab.setLayout(new VerticalLayout(10));
+		tab.setLayout(new VerticalLayout(15));
 		tab.setBorder(false);
 
 		tab.add(buildFavoriteEntry("(1)  Macy's"));
@@ -259,7 +252,7 @@ public class Skywalker implements EntryPoint {
 		entry.setBorder(false);
 		entry.setHeader(false);
 		entry.setLayout(new HorizontalLayout(10));
-		entry.setMargins(5);
+		entry.setMargins(15, 6, 0, 0);
 
 		entry.add(button);
 		entry.add(deleteImage);
@@ -434,7 +427,7 @@ public class Skywalker implements EntryPoint {
 		return panel;
 	}
 
-	private Panel buildMapPanel() {
+	private Panel buildMapPanelOld() {
 		Panel topPanel = buildTopPanel();
 		Panel mapPanel = buildMap();
 		mapMainPanel.add(topPanel);
@@ -657,6 +650,76 @@ public class Skywalker implements EntryPoint {
 		}
 		mapPanel.add(mapImage);
 		return mapPanel;
+	}
+	
+	private void buildMapPanel(){
+		TabPanel tabs = new TabPanel();
+		tabs.setResizeTabs(false);
+		tabs.setBorder(false);
+
+		tabs.add(buildMapTab());
+		tabs.add(buildDirectionsTab());
+
+		mapPanel.add(tabs);
+		mapPanel.setBorder(false);
+	}
+	
+	private Panel buildMapTab() {
+		Panel wrapper = new Panel("View Map");
+		wrapper.setLayout(new VerticalLayout(0));
+		wrapper.setBorder(false);
+		wrapper.setPixelSize(WIDTH-15, HEIGHT-55);
+
+		Panel topPanel = new Panel();
+		topPanel.setLayout(new FitLayout());
+		topPanel.setBorder(false);
+		topPanel.setPixelSize(WIDTH-15, 25);
+		topPanel.add(new Image("images/up.jpg"));
+		
+		Panel middlePanel = new Panel();
+		middlePanel.setLayout(new HorizontalLayout(0));
+		middlePanel.setBorder(false);
+		middlePanel.setPixelSize(WIDTH-15, HEIGHT-125);
+		
+		Panel leftPanPanel = new Panel();
+		leftPanPanel.setLayout(new FitLayout());
+		leftPanPanel.setBorder(false);
+		leftPanPanel.setPixelSize(25, HEIGHT-125);
+		leftPanPanel.add(new Image("images/left.jpg"));
+		
+		Panel mapPanel = new Panel();
+		mapPanel.setLayout(new FitLayout());
+		mapPanel.setBorder(false);
+		mapPanel.setPixelSize(WIDTH-65, HEIGHT-125);
+		
+		Panel rightPanPanel = new Panel();
+		rightPanPanel.setLayout(new FitLayout());
+		rightPanPanel.setBorder(false);
+		rightPanPanel.setPixelSize(25, HEIGHT-125);
+		rightPanPanel.add(new Image("images/right.jpg"));
+		
+		Panel bottomPanel = new Panel();
+		bottomPanel.setLayout(new FitLayout());
+		bottomPanel.setBorder(false);
+		bottomPanel.setPixelSize(WIDTH-15, 25);
+		bottomPanel.add(new Image("images/down.jpg"));
+		
+		middlePanel.add(leftPanPanel);
+		middlePanel.add(mapPanel);
+		middlePanel.add(rightPanPanel);
+		
+		wrapper.add(topPanel);
+		wrapper.add(middlePanel);
+		wrapper.add(bottomPanel);
+		
+		return wrapper;
+	}
+	
+	private Panel buildDirectionsTab() {
+		Label label = new Label("From: Target\nTo: Macys\nGo Straight\nTurn right at corner\nTurn left");
+		Panel wrapper = new Panel("View Directions");
+		wrapper.add(label);
+		return wrapper;
 	}
 
 	private Panel buildTestPanel(String testMessage) {
