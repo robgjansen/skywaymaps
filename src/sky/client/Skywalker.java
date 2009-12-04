@@ -284,8 +284,8 @@ public class Skywalker implements EntryPoint {
 		Label l = new Label(title);
 		l.setWidth("40");
 		p.add(l);
-		Image list = new Image("images/listfav.png");
-		p.add(list);
+//		Image list = new Image("images/listfav.png");
+//		p.add(list);
 
 		return p;
 	}
@@ -657,11 +657,29 @@ public class Skywalker implements EntryPoint {
 		tabs.setResizeTabs(false);
 		tabs.setBorder(false);
 
-		tabs.add(buildMapTab());
+		tabs.add(buildMapTab2());
 		tabs.add(buildDirectionsTab());
 
 		mapPanel.add(tabs);
 		mapPanel.setBorder(false);
+	}
+	
+	private Panel buildMapTab2() {
+		Panel wrapper = new Panel("View Map");
+		wrapper.setLayout(new HorizontalLayout(0));
+		wrapper.setBorder(true);
+		wrapper.setPixelSize(WIDTH-10, HEIGHT-90);
+		
+		Panel mapPanel = new Panel();
+//		mapPanel.setLayout(new FitLayout());
+		mapPanel.setBorder(false);
+		mapPanel.setPixelSize(270, 360);
+		mapPanel.setAutoScroll(true);
+		mapPanel.add(new Image("http://images.marketplaceadvisor.channeladvisor.com/hi/59/58567/lotr-leaf-f09.jpg"));
+		
+		wrapper.add(mapPanel);
+		
+		return wrapper;
 	}
 	
 	private Panel buildMapTab() {
