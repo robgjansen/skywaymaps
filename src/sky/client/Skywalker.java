@@ -57,22 +57,26 @@ public class Skywalker implements EntryPoint {
 	private int currentDirection = NO_DIRECTION;
 
 	final Panel mapMainPanel = new Panel();
-	final Panel mainWindowPannel = new Panel("Skywalker Demo");
+	final Panel mainPannel = new Panel("Skywalker Demo");
+	final Panel directionPanel = new Panel("Directions");
 
 	/**
 	 * This is the entry point method.
 	 */
 	public void onModuleLoad() {
 		// panel inside the main window
-		mainWindowPannel.setBorder(true);
+		mainPannel.setBorder(true);
 
 		buildApplication();
 
-		RootPanel.get().add(mainWindowPannel);
+		// load default starting point
+		mainPannel.add(directionPanel);
+
+		RootPanel.get().add(mainPannel);
 
 		// updates the gui
-		mainWindowPannel.setSize(WIDTH, HEIGHT);
-		mainWindowPannel.doLayout();
+		mainPannel.setSize(WIDTH, HEIGHT);
+		mainPannel.doLayout();
 	}
 
 	private void buildApplication() {
@@ -82,17 +86,14 @@ public class Skywalker implements EntryPoint {
 		Panel mapPanel = buildMapPanel();
 
 		// main areas for toggle content
-		Panel directionPanel = buildDirectionPanel();
+		buildDirectionPanel();
 		Panel locationPanel = buildLocationPanel();
 		Panel favoritePanel = buildFavoritePanel();
 
 		// setup bottom toggles on main window
-		Toolbar bottomBar = buildBottomToggleBar(mainWindowPannel, mapPanel,
-				directionPanel, locationPanel, favoritePanel);
-		mainWindowPannel.setBottomToolbar(bottomBar);
-
-		// load map as default starting point
-		clearAndLoad(mainWindowPannel, mapPanel);
+		Toolbar bottomBar = buildBottomToggleBar(mainPannel, mapPanel,
+				locationPanel, favoritePanel);
+		mainPannel.setBottomToolbar(bottomBar);
 	}
 
 	/**
@@ -108,7 +109,7 @@ public class Skywalker implements EntryPoint {
 	 * @param bottomBar
 	 */
 	private Toolbar buildBottomToggleBar(final Panel mainWindowPannel,
-			final Panel mapPanel, final Panel directionPanel,
+			final Panel mapPanel,
 			final Panel locationPanel, final Panel favoritePanel) {
 
 		Toolbar bottomBar = new Toolbar();
@@ -127,10 +128,10 @@ public class Skywalker implements EntryPoint {
 					locationToggle.setPressed(false);
 					favoriteToggle.setPressed(false);
 					// rebuild and show direction panel
-					clearAndLoad(mainWindowPannel, directionPanel);
+					showPanel(directionPanel);
 				} else {
 					// hide direction panel
-					clearAndLoad(mainWindowPannel, mapPanel);
+					showPanel(mapPanel);
 				}
 			}
 		});
@@ -145,10 +146,10 @@ public class Skywalker implements EntryPoint {
 					// show location panel
 					showLocation = true;
 					updateMap();
-					clearAndLoad(mainWindowPannel, locationPanel);
+					showPanel(locationPanel);
 				} else {
 					// hide location panel
-					clearAndLoad(mainWindowPannel, mapPanel);
+					showPanel(mapPanel);
 				}
 			}
 		});
@@ -161,10 +162,10 @@ public class Skywalker implements EntryPoint {
 					directionsToggle.setPressed(false);
 					locationToggle.setPressed(false);
 					// show favorite panel
-					clearAndLoad(mainWindowPannel, favoritePanel);
+					showPanel(favoritePanel);
 				} else {
 					// hide favorite panel
-					clearAndLoad(mainWindowPannel, mapPanel);
+					showPanel(mapPanel);
 				}
 			}
 
@@ -270,17 +271,10 @@ public class Skywalker implements EntryPoint {
 		return mapMainPanel;
 	}
 
-	private Panel buildDirectionPanel() {
-		Panel directionPanelWrapper = new Panel("Directions");
-		directionPanelWrapper.setLayout(new VerticalLayout(1));
-		directionPanelWrapper.setBorder(false);
-		directionPanelWrapper.setHeight(HEIGHT);
-
-		Panel directionPanel = new Panel();
+	private void buildDirectionPanel() {
 		directionPanel.setLayout(new VerticalLayout(10));
 		directionPanel.setPaddings(10);
 		directionPanel.setBorder(false);
-		directionPanel.setHeader(false);
 
 		directionPanel.add(buildSearchBoxHeader("From:"));
 		directionPanel.add(buildSearchBox());
@@ -288,11 +282,7 @@ public class Skywalker implements EntryPoint {
 		directionPanel.add(buildSearchBox());
 		directionPanel.add(buildPace());
 		directionPanel.add(buildRadioOpts());
-		directionPanel.add(buildGetMap(mainWindowPannel));
-
-		directionPanelWrapper.add(directionPanel);
-
-		return directionPanelWrapper;
+		directionPanel.add(buildGetMap(mainPannel));
 	}
 
 	private Panel buildSearchBoxHeader(String title) {
@@ -460,7 +450,7 @@ public class Skywalker implements EntryPoint {
 		mapPanel.show();
 		mapMainPanel.add(topPanel);
 		mapMainPanel.add(mapPanel);
-		clearAndLoad(mainWindowPannel, mapMainPanel);
+		showPanel(mapMainPanel);
 		System.out.println("Zoom: " + zoomedIn);
 		System.out.println("Location: " + currentLocation);
 		System.out.println("ShowLocation: " + showLocation);
@@ -681,12 +671,12 @@ public class Skywalker implements EntryPoint {
 		return testPanel;
 	}
 
-	private void clearAndLoad(Panel parentToClear, Panel childToAdd) {
-		parentToClear.removeAll();
-		childToAdd.show();
-		parentToClear.add(childToAdd);
+	private void showPanel(Panel panel) {
+		mainPannel.removeAll();
+		mainPannel.add(panel);
+		panel.setVisible(true);
 		// updates the gui
-		parentToClear.doLayout();
+		mainPannel.doLayout();
 	}
 
 }
