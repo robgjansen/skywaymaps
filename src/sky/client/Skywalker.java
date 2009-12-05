@@ -8,6 +8,7 @@ import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.PopupPanel;
 import com.google.gwt.user.client.ui.RadioButton;
 import com.google.gwt.user.client.ui.RootPanel;
+import com.google.gwt.user.client.ui.ScrollPanel;
 import com.google.gwt.user.client.ui.ToggleButton;
 import com.gwtext.client.core.EventObject;
 import com.gwtext.client.data.SimpleStore;
@@ -24,6 +25,9 @@ import com.gwtext.client.widgets.form.TextField;
 import com.gwtext.client.widgets.layout.FitLayout;
 import com.gwtext.client.widgets.layout.HorizontalLayout;
 import com.gwtext.client.widgets.layout.VerticalLayout;
+import com.smartgwt.client.widgets.Slider;
+import com.smartgwt.client.widgets.form.DynamicForm;
+import com.smartgwt.client.widgets.form.fields.SpinnerItem;
 
 /**
  * Entry point classes define <code>onModuleLoad()</code>.
@@ -35,9 +39,8 @@ public class Skywalker implements EntryPoint {
 	private final int HEIGHT = 460;
 	private final String FAV_LINK_TEXTSTYLE = "font-family: Verdana;color: blue;font-size: 20px;text-align: center;text-decoration: underline;";
 	private final String[][] DIRECTION_DATA = new String[][] {
-			new String[] { "Target Plaza" }, new String[] { "Target Store" },
-			new String[] { "Target Center" },
-			new String[] { "Macy's" } };
+			new String[] { "[Current Location]" }, new String[] { "Target Plaza" }, new String[] { "Target Store" },
+			new String[] { "Target Center" }, new String[] { "Macy's" } };
 	private final String[][] PACE_DATA = new String[][] {
 			new String[] { "Slow" }, new String[] { "Medium" },
 			new String[] { "Fast" } };
@@ -57,11 +60,17 @@ public class Skywalker implements EntryPoint {
 	private int currentLocation = CENTER;
 	private int currentDirection = NO_DIRECTION;
 
+	// various widgets - can be used during updates
 	final Panel mapMainPanel = new Panel();
 	final Panel mainPannel = new Panel("Skywalker Demo");
 	final Panel directionPanel = new Panel("Directions");
 	final Panel mapPanel = new Panel("Map");
 	final Panel favoritePanel = new Panel("Favorites");
+	final ScrollPanel mapScroll = new ScrollPanel();
+	final ComboBox toCombo = new ComboBox();
+	final ComboBox fromCombo = new ComboBox();
+	final Slider zoomBar = new Slider();
+	final SpinnerItem spinner = new SpinnerItem();
 
 	/**
 	 * This is the entry point method.
@@ -84,7 +93,6 @@ public class Skywalker implements EntryPoint {
 
 	private void buildApplication() {
 		buildMapPanel();
-
 		buildDirectionPanel();
 		Panel locationPanel = buildLocationPanel();
 		buildFavoritePanel();
@@ -265,37 +273,22 @@ public class Skywalker implements EntryPoint {
 	}
 
 	private void buildDirectionPanel() {
-		directionPanel.setLayout(new VerticalLayout(10));
-		directionPanel.setPaddings(10);
+		directionPanel.setLayout(new VerticalLayout(25));
+		directionPanel.setMargins(10, 10, 0, 0);
 		directionPanel.setBorder(false);
 
-		directionPanel.add(buildSearchBoxHeader("From:"));
-		directionPanel.add(buildSearchBox());
-		directionPanel.add(buildSearchBoxHeader("To:"));
-		directionPanel.add(buildSearchBox());
+		directionPanel.add(buildSearchBox(fromCombo, "From:"));
+		directionPanel.add(buildSearchBox(toCombo, "To:"));
 		directionPanel.add(buildPace());
 		directionPanel.add(buildRadioOpts());
 		directionPanel.add(buildGetMap(mainPannel));
 	}
 
-	private Panel buildSearchBoxHeader(String title) {
-		Panel p = buildRowPanel();
-
-		Label l = new Label(title);
-		l.setWidth("40");
-		p.add(l);
-//		Image list = new Image("images/listfav.png");
-//		p.add(list);
-
-		return p;
-	}
-
-	private Panel buildSearchBox() {
+	private Panel buildSearchBox(ComboBox cb, String title) {
 		final Store store = new SimpleStore(new String[] { "location" },
 				DIRECTION_DATA);
 		store.load();
 
-		ComboBox cb = new ComboBox();
 		cb.setMinChars(1);
 		// we have a custom label
 		cb.setHideLabel(true);
@@ -311,18 +304,29 @@ public class Skywalker implements EntryPoint {
 		cb.setEditable(true);
 		cb.setAllowBlank(false);
 		cb.setPageSize(10);
-		cb.setTitle("Current Location");
-		cb.setWidth(240);
+		
+		cb.setWidth(230);
 
 		FormPanel form = new FormPanel();
-		form.setWidth(300);
+		form.setMargins(0, 0, 25, 0);
+		form.setWidth(280);
 		form.setBorder(false);
 		form.add(cb);
 
 		Panel p = buildRowPanel();
 		p.add(form);
+		
+		Panel p2 = buildRowPanel();
+		Label l = new Label(title);
+		l.setWidth("40");
+		p2.add(l);
+		
+		Panel wrapper = new Panel();
+		wrapper.setLayout(new VerticalLayout(10));
+		wrapper.add(p2);
+		wrapper.add(p);
 
-		return p;
+		return wrapper;
 	}
 
 	private Panel buildPace() {
@@ -364,24 +368,32 @@ public class Skywalker implements EntryPoint {
 	}
 
 	private Panel buildRowPanel() throws IllegalStateException {
-		Panel p = new Panel("", WIDTH, 25);
+		Panel p = new Panel("", WIDTH-15, 25);
 		p.setBorder(false);
 		p.setHeader(false);
 		p.setLayout(new HorizontalLayout(10));
-		p.setAutoWidth(true);
+//		p.setAutoWidth(true); TODO
 		return p;
 	}
 
 	private Panel buildRadioOpts() {
-		// TODO add "spinner" value text field or toggle buttons for up/down arrows
-		final TextField text = new TextField();
-		text.setValue("0.5");
+		spinner.setDefaultValue(0.5);
+		spinner.setMin(0);
+		spinner.setMax(10);
+		spinner.setStep(0.1);
+		spinner.setShowTitle(false);
+		spinner.setWidth(50);
+		
 		RadioButton miles = new RadioButton("myRadioButton", "Miles");
 		miles.addClickHandler(new ClickHandler() {
 			public void onClick(ClickEvent event) {
 				System.out.println("miles clicked");
 				currentDirection = TARGET_MACY;
-				text.setValue("0.5");
+				spinner.setDefaultValue(0.5);
+				spinner.setMin(0);
+				spinner.setMax(10);
+				spinner.setStep(0.1);
+				spinner.setValue(0.5);
 			}
 		});
 		miles.setChecked(true);
@@ -390,13 +402,34 @@ public class Skywalker implements EntryPoint {
 			public void onClick(ClickEvent event) {
 				System.out.println("minutes clicked");
 				currentDirection = TARGET_MACY_30;
-				text.setValue("30");
+				spinner.setDefaultValue(30);
+				spinner.setMin(0);
+				spinner.setMax(180);
+				spinner.setStep(5);
+				spinner.setValue(30);
 			}
 		});
+
+		Panel milesWrapper = new Panel();
+		milesWrapper.setLayout(new FitLayout());
+		milesWrapper.setPixelSize(75, 25);
+		milesWrapper.setBorder(false);
+		milesWrapper.add(miles);
+		
+		Panel minutesWrapper = new Panel();
+		minutesWrapper.setLayout(new FitLayout());
+		minutesWrapper.setPixelSize(75, 25);
+		minutesWrapper.setBorder(false);
+		minutesWrapper.add(minutes);
+		
 		Panel panel = buildRowPanel();
-		panel.add(miles);
-		panel.add(minutes);
-		panel.add(text);
+		panel.add(milesWrapper);
+		panel.add(minutesWrapper);
+		
+		DynamicForm df = new DynamicForm();
+		df.setFields(spinner);
+		panel.add(df);
+		
 		return panel;
 	}
 
@@ -657,32 +690,29 @@ public class Skywalker implements EntryPoint {
 		tabs.setResizeTabs(false);
 		tabs.setBorder(false);
 
-		tabs.add(buildMapTab2());
+		tabs.add(buildMapTabScrolling());
 		tabs.add(buildDirectionsTab());
 
 		mapPanel.add(tabs);
 		mapPanel.setBorder(false);
 	}
 	
-	private Panel buildMapTab2() {
+	private Panel buildMapTabScrolling() {
 		Panel wrapper = new Panel("View Map");
 		wrapper.setLayout(new HorizontalLayout(0));
-		wrapper.setBorder(true);
+		wrapper.setBorder(false);
 		wrapper.setPixelSize(WIDTH-10, HEIGHT-90);
 		
-		Panel mapPanel = new Panel();
-//		mapPanel.setLayout(new FitLayout());
-		mapPanel.setBorder(false);
-		mapPanel.setPixelSize(270, 360);
-		mapPanel.setAutoScroll(true);
-		mapPanel.add(new Image("http://images.marketplaceadvisor.channeladvisor.com/hi/59/58567/lotr-leaf-f09.jpg"));
+		mapScroll.setAlwaysShowScrollBars(true);
+		mapScroll.setPixelSize(270, 360);
+		mapScroll.add(new Image("http://images.marketplaceadvisor.channeladvisor.com/hi/59/58567/lotr-leaf-f09.jpg"));
 		
-		wrapper.add(mapPanel);
+		wrapper.add(mapScroll);
 		
 		return wrapper;
 	}
 	
-	private Panel buildMapTab() {
+	private Panel buildMapTabPanning() {
 		Panel wrapper = new Panel("View Map");
 		wrapper.setLayout(new VerticalLayout(0));
 		wrapper.setBorder(false);
