@@ -79,7 +79,7 @@ public class Skywalker implements EntryPoint {
 	 */
 	public void onModuleLoad() {
 		// panel inside the main window
-		mainPannel.setBorder(true);
+		mainPannel.setBorder(false);
 		mainPannel.setLayout(new FitLayout());
 
 		buildApplication();
@@ -97,13 +97,10 @@ public class Skywalker implements EntryPoint {
 	private void buildApplication() {
 		buildMapPanel();
 		buildDirectionPanel();
-		Panel locationPanel = buildLocationPanel();
 		buildFavoritePanel();
 
 		// setup bottom toggles on main window
-		Toolbar bottomBar = buildBottomToggleBar(mainPannel, mapPanel,
-				locationPanel, favoritePanel);
-		mainPannel.setBottomToolbar(bottomBar);
+		mainPannel.setBottomToolbar(buildBottomToggleBar());
 	}
 
 	/**
@@ -118,9 +115,7 @@ public class Skywalker implements EntryPoint {
 	 * @param favoritePanel
 	 * @param bottomBar
 	 */
-	private Toolbar buildBottomToggleBar(final Panel mainWindowPannel,
-			final Panel mapPanel,
-			final Panel locationPanel, final Panel favoritePanel) {
+	private Toolbar buildBottomToggleBar() {
 
 		Toolbar bottomBar = new Toolbar();
 		bottomBar.setWidth(WIDTH);
@@ -157,12 +152,10 @@ public class Skywalker implements EntryPoint {
 					// unpress other buttons
 					directionsToggle.setPressed(false);
 					favoriteToggle.setPressed(false);
+					button.setPressed(false);
 					// show location panel
 					showLocation = true;
 					updateMap();
-					showPanel(locationPanel);
-				} else {
-					// hide location panel
 					showPanel(mapPanel);
 				}
 			}
@@ -272,20 +265,25 @@ public class Skywalker implements EntryPoint {
 		return entry;
 	}
 
-	private Panel buildLocationPanel() {
-		return mapMainPanel;
-	}
-
 	private void buildDirectionPanel() {
 		directionPanel.setLayout(new VerticalLayout(25));
-		directionPanel.setMargins(10, 10, 0, 0);
+		directionPanel.setMargins(10, 10, 10, 10);
 		directionPanel.setBorder(false);
 
 		directionPanel.add(buildSearchBox(fromCombo, "From:"));
 		directionPanel.add(buildSearchBox(toCombo, "To:"));
-		directionPanel.add(buildPace());
-		directionPanel.add(buildRadioOpts());
-		directionPanel.add(buildGetMap(mainPannel));
+		
+		
+		Panel constraints = new Panel("Route constraints:", 275, 100);
+		constraints.setLayout(new VerticalLayout(10));
+		constraints.setBorder(false);
+		constraints.setHeader(true);
+		
+		constraints.add(buildPace());
+		constraints.add(buildRadioOpts());
+		
+		directionPanel.add(constraints);
+		directionPanel.add(buildDirectionsButtons());
 	}
 
 	private Panel buildSearchBox(ComboBox cb, String title) {
@@ -312,23 +310,16 @@ public class Skywalker implements EntryPoint {
 		cb.setWidth(230);
 
 		FormPanel form = new FormPanel();
-		form.setMargins(0, 0, 25, 0);
-		form.setWidth(280);
+//		form.setMargins(0, 0, 25, 0);
+		form.setWidth(270);
 		form.setBorder(false);
 		form.add(cb);
 
-		Panel p = buildRowPanel();
-		p.add(form);
-		
-		Panel p2 = buildRowPanel();
-		Label l = new Label(title);
-		l.setWidth("40");
-		p2.add(l);
-		
-		Panel wrapper = new Panel();
-		wrapper.setLayout(new VerticalLayout(10));
-		wrapper.add(p2);
-		wrapper.add(p);
+		Panel wrapper = new Panel(title);
+		wrapper.setBorder(false);
+		wrapper.setWidth(275);
+		wrapper.setLayout(new FitLayout());
+		wrapper.add(form);
 
 		return wrapper;
 	}
@@ -372,7 +363,7 @@ public class Skywalker implements EntryPoint {
 	}
 
 	private Panel buildRowPanel() throws IllegalStateException {
-		Panel p = new Panel("", WIDTH-15, 25);
+		Panel p = new Panel("", WIDTH-30, 25);
 		p.setBorder(false);
 		p.setHeader(false);
 		p.setLayout(new HorizontalLayout(10));
@@ -437,9 +428,9 @@ public class Skywalker implements EntryPoint {
 		return panel;
 	}
 
-	private Panel buildGetMap(final Panel mainWindowPannel) {
+	private Panel buildDirectionsButtons() {
 		final ToggleButton save = new ToggleButton("Save");
-		save.setPixelSize(50, 20);
+		save.setPixelSize(50, 25);
 		save.addClickHandler(new ClickHandler() {
 			public void onClick(ClickEvent event) {
 				//TODO to be implemented (if needed)
@@ -447,20 +438,27 @@ public class Skywalker implements EntryPoint {
 				save.setDown(false);
 			}
 		});
-		final ToggleButton getMap = new ToggleButton("Get Map");
-		getMap.setPixelSize(100, 20);
-		getMap.addClickHandler(new ClickHandler() {
+		final ToggleButton go = new ToggleButton("Go!");
+		go.setPixelSize(50, 25);
+		go.addClickHandler(new ClickHandler() {
 			public void onClick(ClickEvent event) {
-				if (currentDirection == NO_DIRECTION) {
-					currentDirection = TARGET_MACY;
-				}
+//				if (currentDirection == NO_DIRECTION) {
+//					currentDirection = TARGET_MACY;
+//				}
 				updateMap();
-				getMap.setDown(false);
+				//TODO to be implemented (if needed)
+				System.out.println("Go button clicked");
+				go.setDown(false);
 			}
 		});
-		Panel panel = buildRowPanel();
+		Panel panel = new Panel();
+		panel.setLayout(new HorizontalLayout(10));
+		panel.setBorder(false);
+		panel.setHeader(false);
 		panel.add(save);
-		panel.add(getMap);
+		panel.add(go);
+		panel.setMargins(0, 60, 0, 0);
+		
 		return panel;
 	}
 
@@ -473,14 +471,14 @@ public class Skywalker implements EntryPoint {
 	}
 	
 	private void updateMap() {
-		mapMainPanel.removeAll();
-		Panel topPanel = buildTopPanel();
-		Panel mapPanel = buildMap();
-		topPanel.show();
-		mapPanel.show();
-		mapMainPanel.add(topPanel);
-		mapMainPanel.add(mapPanel);
-		showPanel(mapMainPanel);
+//		mapMainPanel.removeAll();
+//		Panel topPanel = buildTopPanel();
+//		Panel mapPanel = buildMap();
+//		topPanel.show();
+//		mapPanel.show();
+//		mapMainPanel.add(topPanel);
+//		mapMainPanel.add(mapPanel);
+//		showPanel(mapMainPanel);
 		System.out.println("Zoom: " + zoomedIn);
 		System.out.println("Location: " + currentLocation);
 		System.out.println("ShowLocation: " + showLocation);
@@ -744,29 +742,6 @@ public class Skywalker implements EntryPoint {
 		wrapper.add(mapScroll);
 		
 		tab.add(wrapper);
-		
-//		zoomBar.setMinValue(1);
-//		zoomBar.setMaxValue(3);
-//		zoomBar.setNumValues(3);
-//		zoomBar.setTitle("Zoom");
-//		zoomBar.setMaxValueLabel("Max");
-//		zoomBar.setMinValueLabel("Min");
-//		
-//		zoomBar.addValueChangedHandler(new ValueChangedHandler() {
-//			public void onValueChanged(ValueChangedEvent event) {
-//				System.out.println("Zoom level changed");
-//			}
-//		});
-//		
-//		SimplePanel sliderWrap = new SimplePanel();
-//		sliderWrap.add(zoomBar);
-//		
-//		Panel p = new Panel();
-//		p.setBorder(true);
-//		p.setPixelSize(30, 360);
-//		p.setLayout(new FitLayout());
-//		p.add(sliderWrap);
-//		wrapper.add(p);
 		
 		return tab;
 	}
