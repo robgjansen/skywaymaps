@@ -15,6 +15,7 @@ import com.gwtext.client.data.SimpleStore;
 import com.gwtext.client.data.Store;
 import com.gwtext.client.widgets.Button;
 import com.gwtext.client.widgets.Panel;
+import com.gwtext.client.widgets.QuickTipsConfig;
 import com.gwtext.client.widgets.TabPanel;
 import com.gwtext.client.widgets.Toolbar;
 import com.gwtext.client.widgets.ToolbarButton;
@@ -71,6 +72,7 @@ public class Skywalker implements EntryPoint {
 	final ComboBox fromCombo = new ComboBox();
 	final Slider zoomBar = new Slider();
 	final SpinnerItem spinner = new SpinnerItem();
+	final ToolbarButton zoomButton = new ToolbarButton();
 
 	/**
 	 * This is the entry point method.
@@ -78,6 +80,7 @@ public class Skywalker implements EntryPoint {
 	public void onModuleLoad() {
 		// panel inside the main window
 		mainPannel.setBorder(true);
+		mainPannel.setLayout(new FitLayout());
 
 		buildApplication();
 
@@ -120,6 +123,7 @@ public class Skywalker implements EntryPoint {
 			final Panel locationPanel, final Panel favoritePanel) {
 
 		Toolbar bottomBar = new Toolbar();
+		bottomBar.setWidth(WIDTH);
 
 		final ToolbarButton directionsToggle = buildToggle(bottomBar,
 				"Directions");
@@ -698,75 +702,79 @@ public class Skywalker implements EntryPoint {
 	}
 	
 	private Panel buildMapTabScrolling() {
-		Panel wrapper = new Panel("View Map");
-		wrapper.setLayout(new HorizontalLayout(0));
+		Panel tab = new Panel("View Map");
+		tab.setLayout(new FitLayout());
+		tab.setBorder(false);
+		tab.setHeight(HEIGHT-92);
+		
+		Panel wrapper = new Panel();
+		wrapper.setLayout(new FitLayout());
 		wrapper.setBorder(false);
-		wrapper.setPixelSize(WIDTH-10, HEIGHT-90);
+		wrapper.setHeader(false);
 		
 		mapScroll.setAlwaysShowScrollBars(true);
-		mapScroll.setPixelSize(270, 360);
 		mapScroll.add(new Image("http://images.marketplaceadvisor.channeladvisor.com/hi/59/58567/lotr-leaf-f09.jpg"));
 		
+		final String in = "+ Zoom in +";
+		final String out = "- Zoom out -";
+		
+		zoomButton.setText(in);
+		zoomButton.setEnableToggle(true);
+		zoomButton.setPressed(false);
+		zoomButton.setMinWidth(290);
+		
+		QuickTipsConfig tipsConfig = new QuickTipsConfig();
+		tipsConfig.setText("Press to toggle zoom level");
+		tipsConfig.setTitle("Zoom");
+		zoomButton.setTooltip(tipsConfig);
+		
+		zoomButton.addListener(new ButtonListenerAdapter() {
+			public void onClick(Button button, EventObject e) {
+				System.out.println("zoom toggle pressed");
+				// button actions
+				if (button.isPressed()) {
+					button.setText(out);
+				} else {
+					button.setText(in);
+				}
+			}
+		});
+		
+		wrapper.setTopToolbar(zoomButton);
 		wrapper.add(mapScroll);
 		
-		return wrapper;
-	}
-	
-	private Panel buildMapTabPanning() {
-		Panel wrapper = new Panel("View Map");
-		wrapper.setLayout(new VerticalLayout(0));
-		wrapper.setBorder(false);
-		wrapper.setPixelSize(WIDTH-15, HEIGHT-55);
-
-		Panel topPanel = new Panel();
-		topPanel.setLayout(new FitLayout());
-		topPanel.setBorder(false);
-		topPanel.setPixelSize(WIDTH-15, 25);
-		topPanel.add(new Image("images/up.jpg"));
+		tab.add(wrapper);
 		
-		Panel middlePanel = new Panel();
-		middlePanel.setLayout(new HorizontalLayout(0));
-		middlePanel.setBorder(false);
-		middlePanel.setPixelSize(WIDTH-15, HEIGHT-125);
+//		zoomBar.setMinValue(1);
+//		zoomBar.setMaxValue(3);
+//		zoomBar.setNumValues(3);
+//		zoomBar.setTitle("Zoom");
+//		zoomBar.setMaxValueLabel("Max");
+//		zoomBar.setMinValueLabel("Min");
+//		
+//		zoomBar.addValueChangedHandler(new ValueChangedHandler() {
+//			public void onValueChanged(ValueChangedEvent event) {
+//				System.out.println("Zoom level changed");
+//			}
+//		});
+//		
+//		SimplePanel sliderWrap = new SimplePanel();
+//		sliderWrap.add(zoomBar);
+//		
+//		Panel p = new Panel();
+//		p.setBorder(true);
+//		p.setPixelSize(30, 360);
+//		p.setLayout(new FitLayout());
+//		p.add(sliderWrap);
+//		wrapper.add(p);
 		
-		Panel leftPanPanel = new Panel();
-		leftPanPanel.setLayout(new FitLayout());
-		leftPanPanel.setBorder(false);
-		leftPanPanel.setPixelSize(25, HEIGHT-125);
-		leftPanPanel.add(new Image("images/left.jpg"));
-		
-		Panel mapPanel = new Panel();
-		mapPanel.setLayout(new FitLayout());
-		mapPanel.setBorder(false);
-		mapPanel.setPixelSize(WIDTH-65, HEIGHT-125);
-		
-		Panel rightPanPanel = new Panel();
-		rightPanPanel.setLayout(new FitLayout());
-		rightPanPanel.setBorder(false);
-		rightPanPanel.setPixelSize(25, HEIGHT-125);
-		rightPanPanel.add(new Image("images/right.jpg"));
-		
-		Panel bottomPanel = new Panel();
-		bottomPanel.setLayout(new FitLayout());
-		bottomPanel.setBorder(false);
-		bottomPanel.setPixelSize(WIDTH-15, 25);
-		bottomPanel.add(new Image("images/down.jpg"));
-		
-		middlePanel.add(leftPanPanel);
-		middlePanel.add(mapPanel);
-		middlePanel.add(rightPanPanel);
-		
-		wrapper.add(topPanel);
-		wrapper.add(middlePanel);
-		wrapper.add(bottomPanel);
-		
-		return wrapper;
+		return tab;
 	}
 	
 	private Panel buildDirectionsTab() {
-		Label label = new Label("From: Target\nTo: Macys\nGo Straight\nTurn right at corner\nTurn left");
 		Panel wrapper = new Panel("View Directions");
-		wrapper.add(label);
+		String html = "<p>From: Target Plaza<br>To: Macy's<br><br>1. Exit target 2nd floor main doors<br>2. Head to the right<br>3. Follow signs for the 'Highland Bank' building<br>4. ...";
+		wrapper.setHtml(html);
 		return wrapper;
 	}
 
