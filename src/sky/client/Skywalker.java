@@ -56,8 +56,6 @@ public class Skywalker implements EntryPoint {
 	private final int TARGET_MACY = 1;
 	private final int TARGET_TARGET = 2;
 	private final int TARGET_MACY_30 = 3;
-	private boolean zoomedIn = false;
-	private boolean showLocation = false;
 	private int currentLocation = CENTER;
 	private int currentDirection = NO_DIRECTION;
 
@@ -73,7 +71,38 @@ public class Skywalker implements EntryPoint {
 	final Slider zoomBar = new Slider();
 	final SpinnerItem spinner = new SpinnerItem();
 	final ToolbarButton zoomButton = new ToolbarButton();
-
+	final Panel mapScrollingTab = new Panel("View Map");
+	final Panel directionsList = new Panel("View Directions");
+	
+	final String html = "<p>From: Target Plaza<br>To: Macy's<br><br>1. Exit target 2nd floor main doors<br>2. Head to the right<br>3. Follow signs for the 'Highland Bank' building<br>4. ...</p>";
+	final String nohtml = "<p>Enter locations to receive directions...</p>";
+	
+	private boolean zoomedIn = false;
+	private boolean showLocation = false;
+	private boolean showDirection = false;
+	private boolean showLong = false;
+	
+	Image currentImage;
+	
+	final Image inNormal = new Image("images/sky_map-in.png");
+	final Image inLoc = new Image("images/sky_map-in-location.png");
+	final Image inDirShort = new Image("images/sky_map-in-direction_short.png");
+	final Image inDirLong = new Image("images/sky_map-in-direction_long.png");
+	final Image inLocDirShort = new Image("images/sky_map-in-location_direction_short.png");
+	final Image inLocDirLong = new Image("images/sky_map-in-location_direction_long.png");
+	
+	final Image outNormal = new Image("images/sky_map-out.png");
+	final Image outLoc = new Image("images/sky_map-out-location.png");
+	final Image outDirShort = new Image("images/sky_map-out-direction_short.png");
+	final Image outDirLong = new Image("images/sky_map-out-direction_long.png");
+	final Image outLocDirShort = new Image("images/sky_map-out-location_direction_short.png");
+	final Image outLocDirLong = new Image("images/sky_map-out-location_direction_long.png");
+	
+	final Toolbar bottomBar = new Toolbar();
+	final ToolbarButton directionsToggle = new ToolbarButton("Directions");
+	final ToolbarButton locationToggle = new ToolbarButton("Get Location");
+	final ToolbarButton favoriteToggle = new ToolbarButton("Favorites");
+	
 	/**
 	 * This is the entry point method.
 	 */
@@ -117,15 +146,12 @@ public class Skywalker implements EntryPoint {
 	 */
 	private Toolbar buildBottomToggleBar() {
 
-		Toolbar bottomBar = new Toolbar();
 		bottomBar.setWidth(WIDTH);
-
-		final ToolbarButton directionsToggle = buildToggle(bottomBar,
-				"Directions");
-		final ToolbarButton locationToggle = buildToggle(bottomBar,
-				"Get Location");
-		final ToolbarButton favoriteToggle = buildToggle(bottomBar, "Favorites");
 		
+		buildToggle(directionsToggle);
+		buildToggle(locationToggle);
+		buildToggle(favoriteToggle);
+
 		//directions is default
 		directionsToggle.setPressed(true);
 
@@ -140,6 +166,7 @@ public class Skywalker implements EntryPoint {
 					showPanel(directionPanel);
 				} else {
 					// hide direction panel
+					updateMap();
 					showPanel(mapPanel);
 				}
 			}
@@ -156,7 +183,6 @@ public class Skywalker implements EntryPoint {
 					// show location panel
 					showLocation = true;
 					updateMap();
-					showPanel(mapPanel);
 				}
 			}
 		});
@@ -172,6 +198,7 @@ public class Skywalker implements EntryPoint {
 					showPanel(favoritePanel);
 				} else {
 					// hide favorite panel
+					updateMap();
 					showPanel(mapPanel);
 				}
 			}
@@ -181,13 +208,11 @@ public class Skywalker implements EntryPoint {
 		return bottomBar;
 	}
 
-	private ToolbarButton buildToggle(Toolbar bottomBar, String title) {
-		ToolbarButton toggle = new ToolbarButton(title);
+	private void buildToggle(ToolbarButton toggle) {
 		toggle.setEnableToggle(true);
 		toggle.setPressed(false);
 		toggle.setMinWidth((WIDTH / 3));
 		bottomBar.addButton(toggle);
-		return toggle;
 	}
 
 	private void buildFavoritePanel() {
@@ -383,7 +408,13 @@ public class Skywalker implements EntryPoint {
 		miles.addClickHandler(new ClickHandler() {
 			public void onClick(ClickEvent event) {
 				System.out.println("miles clicked");
-				currentDirection = TARGET_MACY;
+				
+				//TODO - how to get the value in the spinner
+//				if((spinner.getValue()) > 0.5 ){
+//					showLong = true;
+//				}
+				showLong = true;
+				
 				spinner.setDefaultValue(0.5);
 				spinner.setMin(0);
 				spinner.setMax(10);
@@ -391,12 +422,17 @@ public class Skywalker implements EntryPoint {
 				spinner.setValue(0.5);
 			}
 		});
-		miles.setChecked(true);
 		RadioButton minutes = new RadioButton("myRadioButton", "Minutes");
 		minutes.addClickHandler(new ClickHandler() {
 			public void onClick(ClickEvent event) {
 				System.out.println("minutes clicked");
-				currentDirection = TARGET_MACY_30;
+				
+				//TODO - how to get the value in the spinner
+//				if((spinner.getValue()) > 30 ){
+//					showLong = true;
+//				}
+				showLong = false;
+				
 				spinner.setDefaultValue(30);
 				spinner.setMin(0);
 				spinner.setMax(180);
@@ -404,6 +440,7 @@ public class Skywalker implements EntryPoint {
 				spinner.setValue(30);
 			}
 		});
+		minutes.setValue(true, true);
 
 		Panel milesWrapper = new Panel();
 		milesWrapper.setLayout(new FitLayout());
@@ -442,13 +479,12 @@ public class Skywalker implements EntryPoint {
 		go.setPixelSize(50, 25);
 		go.addClickHandler(new ClickHandler() {
 			public void onClick(ClickEvent event) {
-//				if (currentDirection == NO_DIRECTION) {
-//					currentDirection = TARGET_MACY;
-//				}
-				updateMap();
-				//TODO to be implemented (if needed)
 				System.out.println("Go button clicked");
+				showDirection = true;
 				go.setDown(false);
+				showPanel(mapPanel);
+				directionsToggle.setPressed(false);
+				updateMap();
 			}
 		});
 		Panel panel = new Panel();
@@ -471,17 +507,21 @@ public class Skywalker implements EntryPoint {
 	}
 	
 	private void updateMap() {
-//		mapMainPanel.removeAll();
-//		Panel topPanel = buildTopPanel();
-//		Panel mapPanel = buildMap();
-//		topPanel.show();
-//		mapPanel.show();
-//		mapMainPanel.add(topPanel);
-//		mapMainPanel.add(mapPanel);
-//		showPanel(mapMainPanel);
-		System.out.println("Zoom: " + zoomedIn);
-		System.out.println("Location: " + currentLocation);
-		System.out.println("ShowLocation: " + showLocation);
+		mapScroll.remove(currentImage);
+		currentImage = getMapImage();
+		mapScroll.add(currentImage);
+
+		setScrolls();
+
+		if(showDirection) {
+			directionsList.setDisabled(false);
+			directionsList.setHtml(html);
+		} else {
+			directionsList.setDisabled(true);
+			directionsList.setHtml(nohtml);
+		}
+		
+		mapPanel.doLayout();
 	}
 	
 	private Panel buildTopPanel() {
@@ -692,18 +732,21 @@ public class Skywalker implements EntryPoint {
 		tabs.setResizeTabs(false);
 		tabs.setBorder(false);
 
-		tabs.add(buildMapTabScrolling());
-		tabs.add(buildDirectionsTab());
+		buildMapTabScrolling();
+		directionsList.setDisabled(true);
+		directionsList.setHtml(nohtml);
+		
+		tabs.add(mapScrollingTab);
+		tabs.add(directionsList);
 
 		mapPanel.add(tabs);
 		mapPanel.setBorder(false);
 	}
 	
-	private Panel buildMapTabScrolling() {
-		Panel tab = new Panel("View Map");
-		tab.setLayout(new FitLayout());
-		tab.setBorder(false);
-		tab.setHeight(HEIGHT-92);
+	private void buildMapTabScrolling() {
+		mapScrollingTab.setLayout(new FitLayout());
+		mapScrollingTab.setBorder(false);
+		mapScrollingTab.setHeight(HEIGHT-92);
 		
 		Panel wrapper = new Panel();
 		wrapper.setLayout(new FitLayout());
@@ -711,7 +754,9 @@ public class Skywalker implements EntryPoint {
 		wrapper.setHeader(false);
 		
 		mapScroll.setAlwaysShowScrollBars(true);
-		mapScroll.add(new Image("http://images.marketplaceadvisor.channeladvisor.com/hi/59/58567/lotr-leaf-f09.jpg"));
+		currentImage = getMapImage();
+		mapScroll.add(currentImage);
+		setScrolls();
 		
 		final String in = "+ Zoom in +";
 		final String out = "- Zoom out -";
@@ -731,26 +776,96 @@ public class Skywalker implements EntryPoint {
 				System.out.println("zoom toggle pressed");
 				// button actions
 				if (button.isPressed()) {
+					zoomedIn = true;
 					button.setText(out);
 				} else {
+					zoomedIn = false;
 					button.setText(in);
 				}
+				updateMap();
 			}
 		});
 		
 		wrapper.setTopToolbar(zoomButton);
 		wrapper.add(mapScroll);
 		
-		tab.add(wrapper);
-		
-		return tab;
+		mapScrollingTab.add(wrapper);
 	}
 	
-	private Panel buildDirectionsTab() {
-		Panel wrapper = new Panel("View Directions");
-		String html = "<p>From: Target Plaza<br>To: Macy's<br><br>1. Exit target 2nd floor main doors<br>2. Head to the right<br>3. Follow signs for the 'Highland Bank' building<br>4. ...";
-		wrapper.setHtml(html);
-		return wrapper;
+	private void setScrolls() {
+		int vPos = 0;
+		int hPos = 0;
+		if (showDirection || showLocation) {
+			if (zoomedIn) {
+				vPos = 300;
+				hPos = 120;
+			} else {
+				vPos = 120;
+				hPos = 0;
+			}
+		} else {
+			if (zoomedIn) {
+				vPos = 350;
+				hPos = 250;
+			} else {
+				vPos = 75;
+				hPos = 80;
+			}
+		}
+		
+		System.out.println("h=" + hPos + " v=" + vPos);
+		
+		mapScroll.setScrollPosition(vPos);
+		mapScroll.setHorizontalScrollPosition(hPos);
+	}
+
+	private Image getMapImage() {
+		// logic on which map to show
+		if(zoomedIn){
+			if(showLocation) {
+				if(showDirection) {
+					if(showLong) {
+						return inLocDirLong;
+					} else {
+						return inLocDirShort;
+					}
+				} else {
+					return inLoc;
+				}
+			} else {
+				if(showDirection) {
+					if(showLong) {
+						return inDirLong;
+					} else {
+						return inDirShort;
+					}
+				} else {
+					return inNormal;
+				}
+			}
+		} else {
+			if(showLocation) {
+				if(showDirection) {
+					if(showLong) {
+						return outLocDirLong;
+					} else {
+						return outLocDirShort;
+					}
+				} else {
+					return outLoc;
+				}
+			} else {
+				if(showDirection) {
+					if(showLong) {
+						return outDirLong;
+					} else {
+						return outDirShort;
+					}
+				} else {
+					return outNormal;
+				}
+			}
+		}
 	}
 
 	private Panel buildTestPanel(String testMessage) {
