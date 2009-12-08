@@ -183,6 +183,7 @@ public class Skywalker implements EntryPoint {
 					// show location panel
 					showLocation = true;
 					updateMap();
+					showPanel(mapPanel);
 				}
 			}
 		});
@@ -232,9 +233,9 @@ public class Skywalker implements EntryPoint {
 		tab.setLayout(new VerticalLayout(15));
 		tab.setBorder(false);
 
-		tab.add(buildFavoriteEntry("(1)  Macy's"));
-		tab.add(buildFavoriteEntry("(2)  Target Plaza"));
-		tab.add(buildFavoriteEntry("(3)  Target Store"));
+		tab.add(buildFavoriteEntry("(1)  Macy's", false));
+		tab.add(buildFavoriteEntry("(2)  Target Plaza", false));
+		tab.add(buildFavoriteEntry("(3)  Target Store", false));
 
 		return tab;
 	}
@@ -244,13 +245,13 @@ public class Skywalker implements EntryPoint {
 		tab.setLayout(new VerticalLayout(15));
 		tab.setBorder(false);
 
-		tab.add(buildFavoriteEntry("(1)  Macy's to Target Plaza"));
-		tab.add(buildFavoriteEntry("(2)  Target Plaza to Target Store"));
+		tab.add(buildFavoriteEntry("(1)  Macy's to Target Plaza", true));
+		tab.add(buildFavoriteEntry("(2)  Target Plaza to Target Store", true));
 
 		return tab;
 	}
 
-	private Panel buildFavoriteEntry(final String entryTitle) {
+	private Panel buildFavoriteEntry(final String entryTitle, final boolean isWalk) {
 		// an entry in the favorite list has a button with the entry title
 		final ToggleButton button = new ToggleButton(entryTitle);
 		// delete image is 25 pixels high too!
@@ -261,6 +262,13 @@ public class Skywalker implements EntryPoint {
 				// TODO Auto-generated method stub
 				System.out.println("Toggle clicked: " + entryTitle);
 				button.setDown(false);
+				fromCombo.setValue("Target Plaza");
+				if(isWalk) {
+					toCombo.setValue("Macy's");
+				}
+				favoriteToggle.setPressed(false);
+				directionsToggle.setPressed(true);
+				showPanel(directionPanel);
 			}
 		});
 
