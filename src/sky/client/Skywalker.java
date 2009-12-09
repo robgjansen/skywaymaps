@@ -78,7 +78,7 @@ public class Skywalker implements EntryPoint {
 	final String nohtml = "<p>Enter locations to receive directions...</p>";
 	
 	private boolean zoomedIn = false;
-	private boolean showLocation = false;
+	private boolean showLocation = true;
 	private boolean showDirection = false;
 	private boolean showLong = false;
 	
