@@ -1,6 +1,7 @@
 package sky.client;
 
 import com.google.gwt.core.client.EntryPoint;
+import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.ui.Image;
@@ -11,9 +12,12 @@ import com.google.gwt.user.client.ui.RootPanel;
 import com.google.gwt.user.client.ui.ScrollPanel;
 import com.google.gwt.user.client.ui.ToggleButton;
 import com.gwtext.client.core.EventObject;
+import com.gwtext.client.data.Record;
 import com.gwtext.client.data.SimpleStore;
 import com.gwtext.client.data.Store;
+import com.gwtext.client.widgets.BoxComponent;
 import com.gwtext.client.widgets.Button;
+import com.gwtext.client.widgets.Component;
 import com.gwtext.client.widgets.Panel;
 import com.gwtext.client.widgets.QuickTipsConfig;
 import com.gwtext.client.widgets.TabPanel;
@@ -21,8 +25,14 @@ import com.gwtext.client.widgets.Toolbar;
 import com.gwtext.client.widgets.ToolbarButton;
 import com.gwtext.client.widgets.event.ButtonListenerAdapter;
 import com.gwtext.client.widgets.form.ComboBox;
+import com.gwtext.client.widgets.form.Field;
 import com.gwtext.client.widgets.form.FormPanel;
 import com.gwtext.client.widgets.form.TextField;
+import com.gwtext.client.widgets.form.event.ComboBoxCallback;
+import com.gwtext.client.widgets.form.event.ComboBoxListener;
+import com.gwtext.client.widgets.form.event.ComboBoxListenerAdapter;
+import com.gwtext.client.widgets.form.event.FieldListenerAdapter;
+import com.gwtext.client.widgets.form.event.TextFieldListenerAdapter;
 import com.gwtext.client.widgets.layout.FitLayout;
 import com.gwtext.client.widgets.layout.HorizontalLayout;
 import com.gwtext.client.widgets.layout.VerticalLayout;
@@ -66,15 +76,17 @@ public class Skywalker implements EntryPoint {
 	final Panel mapPanel = new Panel("Map");
 	final Panel favoritePanel = new Panel("Favorites");
 	final ScrollPanel mapScroll = new ScrollPanel();
-	final ComboBox toCombo = new ComboBox();
 	final ComboBox fromCombo = new ComboBox();
+	final ComboBox toCombo = new ComboBox();
 	final Slider zoomBar = new Slider();
 	final SpinnerItem spinner = new SpinnerItem();
 	final ToolbarButton zoomButton = new ToolbarButton();
 	final Panel mapScrollingTab = new Panel("View Map");
 	final Panel directionsList = new Panel("View Directions");
+	final ToggleButton save = new ToggleButton("Save");
+	final ToggleButton go = new ToggleButton("Go!");
 	
-	final String html = "<p>From: Target Plaza<br>To: Macy's<br><br>1. Exit target 2nd floor main doors<br>2. Head to the right<br>3. Follow signs for the 'Highland Bank' building<br>4. ...</p>";
+	final String html = "<p>From: Target Plaza<br>To: Macy's<br>Distance: 0.5 miles<br>Pace: Medium<br>Estimated Time: 30 minutes<br><br>1. Exit target 2nd floor main doors<br>2. Head to the right<br>3. Follow signs for the 'Highland Bank' building<br>4. ...</p>";
 	final String nohtml = "<p>Enter locations to receive directions...</p>";
 	
 	private boolean zoomedIn = false;
@@ -163,6 +175,7 @@ public class Skywalker implements EntryPoint {
 					locationToggle.setPressed(false);
 					favoriteToggle.setPressed(false);
 					// rebuild and show direction panel
+					updateSaveGoButtons();
 					showPanel(directionPanel);
 				} else {
 					// hide direction panel
@@ -268,6 +281,7 @@ public class Skywalker implements EntryPoint {
 				}
 				favoriteToggle.setPressed(false);
 				directionsToggle.setPressed(true);
+				updateSaveGoButtons();
 				showPanel(directionPanel);
 			}
 		});
@@ -305,7 +319,10 @@ public class Skywalker implements EntryPoint {
 
 		directionPanel.add(buildSearchBox(fromCombo, "From:"));
 		directionPanel.add(buildSearchBox(toCombo, "To:"));
-		
+		if(showLocation){
+			fromCombo.setValue("[Current Location]");
+		}
+		updateSaveGoButtons();
 		
 		Panel constraints = new Panel("Route constraints:", 275, 100);
 		constraints.setLayout(new VerticalLayout(10));
@@ -324,6 +341,37 @@ public class Skywalker implements EntryPoint {
 				DIRECTION_DATA);
 		store.load();
 
+		cb.addListener(new FieldListenerAdapter() {
+
+			@Override
+			public void onBlur(Field field) {
+				// TODO Auto-generated method stub
+				super.onBlur(field);
+				updateSaveGoButtons();
+			}
+
+			@Override
+			public void onFocus(Field field) {
+				// TODO Auto-generated method stub
+				super.onFocus(field);
+				updateSaveGoButtons();
+			}
+
+			@Override
+			public void onInvalid(Field field, String msg) {
+				// TODO Auto-generated method stub
+				super.onInvalid(field, msg);
+				updateSaveGoButtons();
+			}
+
+			@Override
+			public void onValid(Field field) {
+				// TODO Auto-generated method stub
+				super.onValid(field);
+				updateSaveGoButtons();
+			}
+		});
+		
 		cb.setMinChars(1);
 		// we have a custom label
 		cb.setHideLabel(true);
@@ -341,7 +389,7 @@ public class Skywalker implements EntryPoint {
 		cb.setPageSize(10);
 		
 		cb.setWidth(230);
-
+		
 		FormPanel form = new FormPanel();
 //		form.setMargins(0, 0, 25, 0);
 		form.setWidth(270);
@@ -474,7 +522,6 @@ public class Skywalker implements EntryPoint {
 	}
 
 	private Panel buildDirectionsButtons() {
-		final ToggleButton save = new ToggleButton("Save");
 		save.setPixelSize(50, 25);
 		save.addClickHandler(new ClickHandler() {
 			public void onClick(ClickEvent event) {
@@ -483,7 +530,6 @@ public class Skywalker implements EntryPoint {
 				save.setDown(false);
 			}
 		});
-		final ToggleButton go = new ToggleButton("Go!");
 		go.setPixelSize(50, 25);
 		go.addClickHandler(new ClickHandler() {
 			public void onClick(ClickEvent event) {
@@ -874,6 +920,17 @@ public class Skywalker implements EntryPoint {
 				}
 			}
 		}
+	}
+	
+	private void updateSaveGoButtons(){
+		if(toCombo.isValid() && toCombo.getValue() != null && fromCombo.isValid() && fromCombo.getValue() != null) {
+			go.setEnabled(true);
+			save.setEnabled(true);
+		} else {
+			go.setEnabled(false);
+			save.setEnabled(false);
+		}
+		System.out.println("Updated save/go buttons");
 	}
 
 	private Panel buildTestPanel(String testMessage) {
