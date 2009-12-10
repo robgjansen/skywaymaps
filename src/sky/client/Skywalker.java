@@ -1,7 +1,6 @@
 package sky.client;
 
 import com.google.gwt.core.client.EntryPoint;
-import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.ui.Image;
@@ -10,14 +9,12 @@ import com.google.gwt.user.client.ui.PopupPanel;
 import com.google.gwt.user.client.ui.RadioButton;
 import com.google.gwt.user.client.ui.RootPanel;
 import com.google.gwt.user.client.ui.ScrollPanel;
+import com.google.gwt.user.client.ui.TextBox;
 import com.google.gwt.user.client.ui.ToggleButton;
 import com.gwtext.client.core.EventObject;
-import com.gwtext.client.data.Record;
 import com.gwtext.client.data.SimpleStore;
 import com.gwtext.client.data.Store;
-import com.gwtext.client.widgets.BoxComponent;
 import com.gwtext.client.widgets.Button;
-import com.gwtext.client.widgets.Component;
 import com.gwtext.client.widgets.Panel;
 import com.gwtext.client.widgets.QuickTipsConfig;
 import com.gwtext.client.widgets.TabPanel;
@@ -28,17 +25,10 @@ import com.gwtext.client.widgets.form.ComboBox;
 import com.gwtext.client.widgets.form.Field;
 import com.gwtext.client.widgets.form.FormPanel;
 import com.gwtext.client.widgets.form.TextField;
-import com.gwtext.client.widgets.form.event.ComboBoxCallback;
-import com.gwtext.client.widgets.form.event.ComboBoxListener;
-import com.gwtext.client.widgets.form.event.ComboBoxListenerAdapter;
 import com.gwtext.client.widgets.form.event.FieldListenerAdapter;
-import com.gwtext.client.widgets.form.event.TextFieldListenerAdapter;
 import com.gwtext.client.widgets.layout.FitLayout;
 import com.gwtext.client.widgets.layout.HorizontalLayout;
 import com.gwtext.client.widgets.layout.VerticalLayout;
-import com.smartgwt.client.widgets.Slider;
-import com.smartgwt.client.widgets.form.DynamicForm;
-import com.smartgwt.client.widgets.form.fields.SpinnerItem;
 
 /**
  * Entry point classes define <code>onModuleLoad()</code>.
@@ -78,8 +68,7 @@ public class Skywalker implements EntryPoint {
 	final ScrollPanel mapScroll = new ScrollPanel();
 	final ComboBox fromCombo = new ComboBox();
 	final ComboBox toCombo = new ComboBox();
-	final Slider zoomBar = new Slider();
-	final SpinnerItem spinner = new SpinnerItem();
+	final TextBox spinner = new TextBox();
 	final ToolbarButton zoomButton = new ToolbarButton();
 	final Panel mapScrollingTab = new Panel("View Map");
 	final Panel directionsList = new Panel("View Directions");
@@ -93,6 +82,7 @@ public class Skywalker implements EntryPoint {
 	private boolean showLocation = true;
 	private boolean showDirection = false;
 	private boolean showLong = false;
+	private boolean isMinutes = false;
 	
 	Image currentImage;
 	
@@ -452,51 +442,29 @@ public class Skywalker implements EntryPoint {
 		return p;
 	}
 
+
 	private Panel buildRadioOpts() {
-		spinner.setDefaultValue(0.5);
-		spinner.setMin(0);
-		spinner.setMax(10);
-		spinner.setStep(0.1);
-		spinner.setShowTitle(false);
-		spinner.setWidth(50);
-		
 		RadioButton miles = new RadioButton("myRadioButton", "Miles");
 		miles.addClickHandler(new ClickHandler() {
 			public void onClick(ClickEvent event) {
 				System.out.println("miles clicked");
-				
-				//TODO - how to get the value in the spinner
-//				if((spinner.getValue()) > 0.5 ){
-//					showLong = true;
-//				}
-				showLong = true;
-				
-				spinner.setDefaultValue(0.5);
-				spinner.setMin(0);
-				spinner.setMax(10);
-				spinner.setStep(0.1);
-				spinner.setValue(0.5);
+				spinner.setValue("0.5");
+				isMinutes = false;
 			}
 		});
 		RadioButton minutes = new RadioButton("myRadioButton", "Minutes");
 		minutes.addClickHandler(new ClickHandler() {
 			public void onClick(ClickEvent event) {
 				System.out.println("minutes clicked");
-				
-				//TODO - how to get the value in the spinner
-//				if((spinner.getValue()) > 30 ){
-//					showLong = true;
-//				}
-				showLong = false;
-				
-				spinner.setDefaultValue(30);
-				spinner.setMin(0);
-				spinner.setMax(180);
-				spinner.setStep(5);
-				spinner.setValue(30);
+				spinner.setValue("30");
+				isMinutes = true;
 			}
 		});
+		
+		spinner.setValue("30");
+		spinner.setVisibleLength(5);
 		minutes.setValue(true, true);
+		isMinutes = true;
 
 		Panel milesWrapper = new Panel();
 		milesWrapper.setLayout(new FitLayout());
@@ -513,10 +481,7 @@ public class Skywalker implements EntryPoint {
 		Panel panel = buildRowPanel();
 		panel.add(milesWrapper);
 		panel.add(minutesWrapper);
-		
-		DynamicForm df = new DynamicForm();
-		df.setFields(spinner);
-		panel.add(df);
+		panel.add(spinner);
 		
 		return panel;
 	}
@@ -536,6 +501,15 @@ public class Skywalker implements EntryPoint {
 				System.out.println("Go button clicked");
 				showDirection = true;
 				go.setDown(false);
+				
+				if(isMinutes && Double.parseDouble(spinner.getValue()) > 30.0){
+					showLong = true;
+				} else if(!isMinutes && Double.parseDouble(spinner.getValue()) > 0.5){
+					showLong = true;
+				} else {
+					showLong = false;
+				}
+				
 				showPanel(mapPanel);
 				directionsToggle.setPressed(false);
 				updateMap();

@@ -15,16 +15,16 @@
 	<!-- <inherits name='com.google.gwt.user.theme.dark.Dark'/>     -->
 
 	<!-- Other module inherits                                      -->
-	<inherits name="com.smartgwt.SmartGwt" />
-	<inherits name="com.smartclient.SmartClientDefault"/>
-	<inherits name="com.smartclient.theme.enterprise.Enterprise"/>
+	<!-- <inherits name="com.smartgwt.SmartGwt" /> -->
+	<!-- <inherits name="com.smartclient.SmartClientDefault"/> -->
+	<!-- <inherits name="com.smartclient.theme.enterprise.Enterprise"/> -->
 
 	<!-- Specify the app entry point class.                         -->
 	<entry-point class='sky.client.Skywalker' />
 
-	<script src="ext/adapter/ext/ext-base.js" />
-	<script src="ext/ext-all.js" />
-	<stylesheet src="ext/resources/css/ext-all.css" />
+	<script src="../ext/adapter/ext/ext-base.js" />
+	<script src="../ext/ext-all.js" />
+	<stylesheet src="../ext/resources/css/ext-all.css" />
 	<stylesheet src="../Skywalker.css" />
 
 </module>
