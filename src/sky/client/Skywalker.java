@@ -92,6 +92,7 @@ public class Skywalker implements EntryPoint {
 	private boolean showDirection = false;
 	private boolean showLong = false;
 	private boolean isMinutes = false;
+	private boolean saveButtonsReady = false;
 
 	Image currentImage;
 
@@ -250,9 +251,9 @@ public class Skywalker implements EntryPoint {
 		tab.setLayout(new VerticalLayout(15));
 		tab.setBorder(false);
 
-		tab.add(buildFavoriteEntry("(1)  Macy's", false));
-		tab.add(buildFavoriteEntry("(2)  Target Plaza", false));
-		tab.add(buildFavoriteEntry("(3)  Target Store", false));
+		tab.add(buildFavoriteEntry("1. Macy's", false));
+		tab.add(buildFavoriteEntry("2. Target Plaza", false));
+		tab.add(buildFavoriteEntry("3. Target Store", false));
 
 		return tab;
 	}
@@ -262,8 +263,8 @@ public class Skywalker implements EntryPoint {
 		tab.setLayout(new VerticalLayout(15));
 		tab.setBorder(false);
 
-		tab.add(buildFavoriteEntry("(1)  Macy's to Target Plaza", true));
-		tab.add(buildFavoriteEntry("(2)  Target Plaza to Target Store", true));
+		tab.add(buildFavoriteEntry("1. Macy's to Target Plaza", true));
+		tab.add(buildFavoriteEntry("2. Target Plaza to Target Store", true));
 
 		return tab;
 	}
@@ -327,7 +328,6 @@ public class Skywalker implements EntryPoint {
 		if (showLocation) {
 			fromCombo.setValue("[Current Location]");
 		}
-		updateSaveGoButtons();
 
 		Panel constraints = new Panel("Route constraints:", 275, 100);
 		constraints.setLayout(new VerticalLayout(10));
@@ -339,43 +339,15 @@ public class Skywalker implements EntryPoint {
 
 		directionPanel.add(constraints);
 		directionPanel.add(buildDirectionsButtons());
+		
+		saveButtonsReady = true;
+		updateSaveGoButtons();
 	}
 
 	private Panel buildSearchBox(ComboBox cb, String title) {
 		final Store store = new SimpleStore(new String[] { "location" },
 				DIRECTION_DATA);
 		store.load();
-
-		cb.addListener(new FieldListenerAdapter() {
-
-			@Override
-			public void onBlur(Field field) {
-				// TODO Auto-generated method stub
-				super.onBlur(field);
-				updateSaveGoButtons();
-			}
-
-			@Override
-			public void onFocus(Field field) {
-				// TODO Auto-generated method stub
-				super.onFocus(field);
-				updateSaveGoButtons();
-			}
-
-			@Override
-			public void onInvalid(Field field, String msg) {
-				// TODO Auto-generated method stub
-				super.onInvalid(field, msg);
-				updateSaveGoButtons();
-			}
-
-			@Override
-			public void onValid(Field field) {
-				// TODO Auto-generated method stub
-				super.onValid(field);
-				updateSaveGoButtons();
-			}
-		});
 
 		cb.setMinChars(1);
 		// we have a custom label
@@ -394,6 +366,23 @@ public class Skywalker implements EntryPoint {
 		cb.setPageSize(10);
 
 		cb.setWidth(230);
+		
+		cb.addListener(new FieldListenerAdapter() {
+
+			@Override
+			public void onBlur(Field field) {
+				// TODO Auto-generated method stub
+				super.onBlur(field);
+				updateSaveGoButtons();
+			}
+
+			@Override
+			public void onFocus(Field field) {
+				// TODO Auto-generated method stub
+				super.onFocus(field);
+				updateSaveGoButtons();
+			}
+		});
 
 		FormPanel form = new FormPanel();
 		// form.setMargins(0, 0, 25, 0);
@@ -933,6 +922,9 @@ public class Skywalker implements EntryPoint {
 	}
 
 	private void updateSaveGoButtons() {
+		if(!saveButtonsReady) {
+			return;
+		}
 		if (toCombo.isValid() && toCombo.getValue() != null
 				&& fromCombo.isValid() && fromCombo.getValue() != null) {
 			go.setEnabled(true);
