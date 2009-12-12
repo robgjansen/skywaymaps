@@ -251,9 +251,10 @@ public class Skywalker implements EntryPoint {
 		tab.setLayout(new VerticalLayout(15));
 		tab.setBorder(false);
 
-		tab.add(buildFavoriteEntry("1. Macy's", false));
-		tab.add(buildFavoriteEntry("2. Target Plaza", false));
-		tab.add(buildFavoriteEntry("3. Target Store", false));
+		tab.add(buildFavoriteEntry("1. Hilton", false));
+		tab.add(buildFavoriteEntry("2. Macy's", false));
+		tab.add(buildFavoriteEntry("3. Target Plaza", false));
+		tab.add(buildFavoriteEntry("4. Target Store", false));
 
 		return tab;
 	}
@@ -263,8 +264,8 @@ public class Skywalker implements EntryPoint {
 		tab.setLayout(new VerticalLayout(15));
 		tab.setBorder(false);
 
-		tab.add(buildFavoriteEntry("1. Macy's to Target Plaza", true));
-		tab.add(buildFavoriteEntry("2. Target Plaza to Target Store", true));
+		tab.add(buildFavoriteEntry("1. Target Plaza to Macy's", true));
+		tab.add(buildFavoriteEntry("2. Hilton to Target Plaza", true));
 
 		return tab;
 	}
@@ -799,7 +800,7 @@ public class Skywalker implements EntryPoint {
 	private void buildMapTabScrolling() {
 		mapScrollingTab.setLayout(new FitLayout());
 		mapScrollingTab.setBorder(false);
-		mapScrollingTab.setHeight(HEIGHT - 92);
+		mapScrollingTab.setHeight(HEIGHT - 104);
 
 		Panel wrapper = new Panel();
 		wrapper.setLayout(new FitLayout());
