@@ -330,7 +330,7 @@ public class Skywalker implements EntryPoint {
 			fromCombo.setValue("[Current Location]");
 		}
 
-		Panel constraints = new Panel("Route constraints:", 275, 100);
+		Panel constraints = new Panel("Options:", 275, 100);
 		constraints.setLayout(new VerticalLayout(10));
 		constraints.setBorder(false);
 		constraints.setHeader(true);
